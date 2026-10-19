@@ -182,16 +182,11 @@
         }
 
         var game = getGameById(getGameIdFromUrl());
-        var titleEl = document.querySelector('[data-role="game-title"]');
         var descriptionEl = document.querySelector('[data-role="game-description"]');
         var errorEl = document.querySelector('[data-role="game-error"]');
 
         if (!game) {
             document.title = 'Игра не найдена — Стив Рембо и его друзья';
-
-            if (titleEl) {
-                titleEl.textContent = 'Игра не найдена';
-            }
 
             if (descriptionEl) {
                 descriptionEl.hidden = true;
@@ -205,10 +200,6 @@
         }
 
         document.title = game.name + ' — Стив Рембо и его друзья';
-
-        if (titleEl) {
-            titleEl.textContent = game.name;
-        }
 
         if (descriptionEl) {
             if (game.description) {
@@ -230,10 +221,17 @@
             }
         }
 
+        var emojiEl = page.querySelector('[data-role="game-emoji"]');
+
+        if (emojiEl) {
+            emojiEl.textContent = game.emoji || '';
+            emojiEl.hidden = !game.emoji;
+        }
+
         var cardTitleEl = page.querySelector('[data-role="game-card-title"]');
 
         if (cardTitleEl) {
-            cardTitleEl.textContent = game.emoji + ' ' + (game.serverTitle || game.name);
+            cardTitleEl.textContent = game.serverTitle || game.name;
         }
 
         var settingsTitleEl = page.querySelector('[data-role="settings-title"]');
@@ -253,11 +251,22 @@
 
             settings.forEach(function (setting) {
                 var item = document.createElement('li');
-                var label = document.createElement('strong');
+                var label = document.createElement('span');
+                var value = document.createElement('span');
 
-                label.textContent = setting.label + ':';
+                item.className = 'settings-row';
+                label.className = 'settings-row__label';
+                value.className = 'settings-row__value';
+
+                label.textContent = setting.label;
+                value.textContent = setting.value || '[Заполнить]';
+
+                if (!setting.value) {
+                    value.classList.add('placeholder');
+                }
+
                 item.appendChild(label);
-                item.appendChild(document.createTextNode(' ' + (setting.value || '[Заполнить]')));
+                item.appendChild(value);
                 settingsList.appendChild(item);
             });
         }
@@ -443,6 +452,57 @@
         });
     }
 
+    // Строка списка донатеров: место, имя, доля от максимального взноса
+    // и сумма. Разметка собирается через textContent — имена из данных
+    // не смогут вставить на страницу свой HTML.
+    function createDonatorRow(entry, options) {
+        var item = document.createElement('li');
+        var share = document.createElement('span');
+        var info = document.createElement('span');
+        var name = document.createElement('span');
+        var amount = document.createElement('span');
+
+        item.className = 'donator';
+
+        share.className = 'donator__share';
+        share.setAttribute('aria-hidden', 'true');
+        share.style.width = Math.max(options.share || 0, 0) + '%';
+        item.appendChild(share);
+
+        if (options.position) {
+            var rank = document.createElement('span');
+
+            rank.className = 'donator__rank';
+            rank.textContent = String(options.position);
+            item.appendChild(rank);
+
+            if (options.position <= 3) {
+                item.classList.add('donator--place-' + options.position);
+            }
+        }
+
+        info.className = 'donator__info';
+        name.className = 'donator__name';
+        name.textContent = entry.name;
+        info.appendChild(name);
+
+        if (options.note) {
+            var note = document.createElement('span');
+
+            note.className = 'donator__note';
+            note.textContent = options.note;
+            info.appendChild(note);
+        }
+
+        item.appendChild(info);
+
+        amount.className = 'donator__amount';
+        amount.textContent = formatMoney(entry.amount) + ' руб.';
+        item.appendChild(amount);
+
+        return item;
+    }
+
     function renderDonators(container, donators) {
         if (!container) {
             return;
@@ -460,12 +520,19 @@
 
         var pageCount = Math.ceil(donators.length / DONATORS_PER_PAGE);
         var currentPage = 0;
+        // Полоска-доля считается от самого крупного зачётного взноса,
+        // поэтому у первого места она всегда во всю ширину.
+        var maxAmount = donators.reduce(function (max, donator) {
+            return Math.max(max, toNumber(donator.credited != null ? donator.credited : donator.amount));
+        }, 0);
 
         var list = document.createElement('ul');
         var pagination = document.createElement('div');
         var prevButton = document.createElement('button');
         var nextButton = document.createElement('button');
         var status = document.createElement('span');
+
+        list.className = 'donators';
 
         pagination.className = 'donators-pagination';
         pagination.setAttribute('role', 'navigation');
@@ -488,27 +555,24 @@
 
             list.textContent = '';
 
-            donators.slice(start, end).forEach(function (donator) {
-                var item = document.createElement('li');
-                var name = document.createElement('strong');
+            donators.slice(start, end).forEach(function (donator, index) {
                 var credited = donator.credited != null
                     ? toNumber(donator.credited)
                     : toNumber(donator.amount);
                 var donated = toNumber(donator.amount);
 
-                // textContent вместо innerHTML — имена не смогут
-                // вставить разметку на страницу.
-                name.textContent = donator.name;
-                item.appendChild(name);
-                item.appendChild(document.createTextNode(' — ' + formatMoney(credited) + ' руб.'));
-
-                // Если часть доната ушла в копилку, показываем в скобках,
-                // сколько человек задонатил за месяц на самом деле.
-                if (donated !== credited) {
-                    item.appendChild(document.createTextNode(' (задоначено ' + formatMoney(donated) + ' руб.)'));
-                }
-
-                list.appendChild(item);
+                list.appendChild(createDonatorRow(
+                    { name: donator.name, amount: credited },
+                    {
+                        position: start + index + 1,
+                        share: maxAmount > 0 ? (credited / maxAmount) * 100 : 0,
+                        // Если часть доната ушла в копилку, показываем,
+                        // сколько человек задонатил за месяц на самом деле.
+                        note: donated !== credited
+                            ? 'задоначено ' + formatMoney(donated) + ' руб.'
+                            : ''
+                    }
+                ));
             });
 
             status.textContent = 'Страница ' + (currentPage + 1) + ' из ' + pageCount +
@@ -551,27 +615,30 @@
 
         container.textContent = '';
 
+        if (!entries || entries.length === 0) {
+            return;
+        }
+
+        var maxAmount = entries.reduce(function (max, entry) {
+            return Math.max(max, toNumber(entry.amount));
+        }, 0);
         var list = document.createElement('ul');
 
-        entries.forEach(function (entry) {
-            var item = document.createElement('li');
-            var name = document.createElement('strong');
+        list.className = 'donators';
 
-            // textContent вместо innerHTML — имена не смогут
-            // вставить разметку на страницу.
-            name.textContent = entry.name;
-            item.appendChild(name);
-            item.appendChild(document.createTextNode(' — ' + formatMoney(entry.amount) + ' руб.'));
-            list.appendChild(item);
+        entries.forEach(function (entry) {
+            list.appendChild(createDonatorRow(entry, {
+                share: maxAmount > 0 ? (toNumber(entry.amount) / maxAmount) * 100 : 0
+            }));
         });
 
         container.appendChild(list);
     }
 
-    function renderProgress(bar, fill, collected, target) {
+    function renderProgress(bar, fill, percentEl, collected, target) {
         var safeCollected = toNumber(collected);
         var safeTarget = toNumber(target);
-        var percent = safeTarget > 0 ? Math.min((safeCollected / safeTarget) * 100, 100) : 0;
+        var percent = safeTarget > 0 ? (safeCollected / safeTarget) * 100 : 0;
 
         if (bar) {
             bar.setAttribute('aria-valuemax', String(safeTarget));
@@ -584,7 +651,13 @@
         if (fill) {
             // Ставим ширину сразу: transition в CSS плавно анимирует её,
             // а в фоновой вкладке значение всё равно останется корректным.
-            fill.style.width = percent + '%';
+            // Перебор сверх цели полосу не растягивает, но процент
+            // в подписи показываем честный.
+            fill.style.width = Math.min(percent, 100) + '%';
+        }
+
+        if (percentEl) {
+            percentEl.textContent = safeTarget > 0 ? Math.round(percent) + '%' : '—';
         }
     }
 
@@ -609,6 +682,8 @@
         var targetEl = panel.querySelector('[data-role="month-target"]');
         var targetUnit = panel.querySelector('[data-role="month-target-unit"]');
         var pendingNote = panel.querySelector('[data-role="month-pending-note"]');
+        var stateEl = panel.querySelector('[data-role="month-state"]');
+        var percentEl = panel.querySelector('[data-role="month-progress-percent"]');
         var piggyBlock = panel.querySelector('[data-role="month-piggy"]');
         var piggyTotalEl = panel.querySelector('[data-role="month-piggy-total"]');
         var piggyList = panel.querySelector('[data-role="month-piggy-list"]');
@@ -654,7 +729,24 @@
             var safeTarget = toNumber(month.target);
             var hasTarget = safeTarget > 0;
 
-            renderProgress(progressBar, progressFill, safeCollected, safeTarget);
+            // Состояние сбора — короткая метка рядом с заголовком месяца.
+            if (stateEl) {
+                var state = 'Сбор идёт';
+                var stateModifier = 'active';
+
+                if (!hasTarget) {
+                    state = 'Цель не задана';
+                    stateModifier = 'idle';
+                } else if (safeCollected >= safeTarget) {
+                    state = 'Цель достигнута';
+                    stateModifier = 'done';
+                }
+
+                stateEl.textContent = state;
+                stateEl.className = 'collect-state collect-state--' + stateModifier;
+            }
+
+            renderProgress(progressBar, progressFill, percentEl, safeCollected, safeTarget);
 
             if (collectedEl) {
                 collectedEl.textContent = formatMoney(safeCollected);
@@ -746,6 +838,7 @@
         var hasMonths = months.length > 0;
         var donatorsBlock = widget.querySelector('[data-role="donators-block"]');
         var monthlyBlock = widget.querySelector('[data-role="monthly-block"]');
+        var emptyEl = widget.querySelector('[data-role="fund-empty"]');
 
         if (donatorsBlock) {
             donatorsBlock.hidden = !hasMonths;
@@ -753,6 +846,10 @@
 
         if (monthlyBlock) {
             monthlyBlock.hidden = !hasMonths;
+        }
+
+        if (emptyEl) {
+            emptyEl.hidden = hasMonths;
         }
 
         if (!hasMonths) {

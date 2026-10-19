@@ -11,41 +11,42 @@
 
 <div class="container">
     <header class="site-header">
-        <h1 data-role="game-title">Игра</h1>
-        <p class="placeholder" data-role="game-description">[Заполнить: краткое описание сервера]</p>
-
         <nav class="site-nav" data-role="site-nav" aria-label="Основная навигация"></nav>
     </header>
 
     <main>
         <a class="back-link" href="index.html">← Все серверы</a>
 
-        <p class="note" data-role="game-error" hidden>
-            Такой игры нет. <a href="index.html">Вернуться на главную</a>.
-        </p>
+        <div class="note game-error" data-role="game-error" hidden>
+            <h1>Игра не найдена</h1>
+            <p>Такой игры нет. <a href="index.html">Вернуться на главную</a>.</p>
+        </div>
 
         <!-- Шаблон страницы игры: статика из data/games.js,
              сборы — из data/donations.js -->
         <article class="server-card" data-role="game-page" data-fund-widget hidden>
-            <div class="server-card__header">
-                <h2 data-role="game-card-title"></h2>
+            <header class="server-card__header">
+                <h1 class="server-card__title">
+                    <span class="server-card__emoji" data-role="game-emoji" aria-hidden="true"></span>
+                    <span class="server-card__name" data-role="game-card-title"></span>
+                </h1>
                 <span class="status-badge" data-role="game-status"></span>
-            </div>
+            </header>
+
+            <p class="server-card__description placeholder" data-role="game-description">[Заполнить: краткое описание сервера]</p>
 
             <!-- Общий список донатеров -->
             <section class="fund-section" aria-labelledby="game-donators-title" data-role="donators-block">
-                <h3 id="game-donators-title">Топ донатеров за все время:</h3>
+                <h2 class="section-title" id="game-donators-title">Топ донатеров за всё время</h2>
                 <div class="donators-list" data-role="total-donators">
                     <p class="empty-state">Загрузка списка спонсоров...</p>
                 </div>
             </section>
 
             <!-- Сбор по месяцам -->
-            <section class="fund-section" aria-labelledby="game-monthly-title" data-role="monthly-block">
-                <h3 id="game-monthly-title">По месяцам:</h3>
-
-                <div class="month-controls">
-                    <div class="month-tabs" role="tablist" aria-label="Выбор месяца" data-role="month-tabs"></div>
+            <section class="fund-section" data-role="monthly-block">
+                <div class="section-head">
+                    <h2 class="section-title" id="game-monthly-title">Сбор по месяцам</h2>
                     <a class="rules-link"
                        href="rules.html"
                        target="_blank"
@@ -54,47 +55,70 @@
                        aria-label="Правила сбора и начисления донатов">?</a>
                 </div>
 
-                <div class="month-panel" id="game-month-panel" role="tabpanel" data-role="month-panel">
-                    <h4 data-role="month-title">—</h4>
+                <div class="month-tabs" role="tablist" aria-label="Выбор месяца" data-role="month-tabs"></div>
 
-                    <div class="progress-bar"
-                         data-role="month-progress-bar"
-                         role="progressbar"
-                         aria-label="Сбор за выбранный месяц"
-                         aria-valuemin="0"
-                         aria-valuemax="0"
-                         aria-valuenow="0">
-                        <div class="progress-fill" data-role="month-progress-fill"></div>
+                <div class="month-panel" id="game-month-panel" role="tabpanel" data-role="month-panel">
+                    <div class="month-panel__head">
+                        <h3 data-role="month-title">—</h3>
+                        <span class="collect-state" data-role="month-state"></span>
                     </div>
-                    <div class="fund-info">
-                        <span>Собрано: <strong data-role="month-collected">0</strong> руб.</span>
-                        <span>Осталось собрать: <strong data-role="month-remaining">0</strong> <span data-role="month-remaining-unit">руб.</span></span>
-                        <span class="fund-info-target">Цель: <strong data-role="month-target">0</strong> <span data-role="month-target-unit">руб.</span></span>
+
+                    <div class="progress-row">
+                        <div class="progress-bar"
+                             data-role="month-progress-bar"
+                             role="progressbar"
+                             aria-label="Сбор за выбранный месяц"
+                             aria-valuemin="0"
+                             aria-valuemax="0"
+                             aria-valuenow="0">
+                            <div class="progress-fill" data-role="month-progress-fill"></div>
+                        </div>
+                        <span class="progress-percent" data-role="month-progress-percent" aria-hidden="true"></span>
                     </div>
+
+                    <dl class="fund-stats">
+                        <div class="fund-stat">
+                            <dt>Собрано</dt>
+                            <dd><strong data-role="month-collected">0</strong> <span class="unit">руб.</span></dd>
+                        </div>
+                        <div class="fund-stat">
+                            <dt>Осталось собрать</dt>
+                            <dd><strong data-role="month-remaining">0</strong> <span class="unit" data-role="month-remaining-unit">руб.</span></dd>
+                        </div>
+                        <div class="fund-stat">
+                            <dt>Цель</dt>
+                            <dd><strong data-role="month-target">0</strong> <span class="unit" data-role="month-target-unit">руб.</span></dd>
+                        </div>
+                    </dl>
 
                     <p class="note month-pending-note" data-role="month-pending-note" hidden>
                         Цель на этот месяц ещё не задана.
                     </p>
 
-                    <h4>Список молодцов этого месяца</h4>
+                    <h4 class="month-panel__subtitle">Список молодцов этого месяца</h4>
                     <div class="donators-list" data-role="month-donators">
                         <p class="empty-state">Загрузка...</p>
                     </div>
 
                     <div class="piggy-block" data-role="month-piggy" hidden>
+                        <h4 class="piggy-block__title">🐷 Копилка</h4>
                         <p class="note">
-                            Сверх цели собрано <strong data-role="month-piggy-total">0</strong> руб. — эта сумма уходит в копилку пропорционально вкладам:
+                            Сверх цели собрано <strong data-role="month-piggy-total">0</strong> руб. — эта сумма переходит на следующий месяц пропорционально вкладам:
                         </p>
                         <div class="donators-list" data-role="month-piggy-list"></div>
                     </div>
                 </div>
             </section>
 
+            <p class="note fund-empty" data-role="fund-empty" hidden>
+                Сборы ещё не открыты. Как только появится цель на месяц, здесь появятся прогресс и список донатеров.
+            </p>
+
             <!-- Настройки сервера -->
-            <div class="decision-block" data-role="settings-block">
-                <h3 data-role="settings-title">Настройки</h3>
-                <ul data-role="settings-list"></ul>
-            </div>
+            <section class="decision-block" data-role="settings-block">
+                <h2 class="section-title" data-role="settings-title">Настройки</h2>
+                <ul class="settings-list" data-role="settings-list"></ul>
+            </section>
         </article>
 
         <noscript>

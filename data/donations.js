@@ -19,22 +19,23 @@
 // ============================================================
 
 window.DONATIONS = {
-    "zomboid": [
-        {
-            "id": "2026-11",
-            "label": "Ноябрь 2026",
-            "target": 1000,
-            "donators": [
-                { "name": "Петрушка", "amount": 700 },
-                { "name": "Добрыня", "amount": 300 },
-                { "name": "Елисей", "amount": 400 }
-            ]
-        },
-        {
-            "id": "2026-12",
-            "target": 0,
-            "donators": []
-        }
-    ],
-    "minecraft": []
+  zomboid: [
+    {
+      id: "2026-11",
+      label: "Ноябрь 2026",
+      target: 1000,
+      donators: [
+        { name: "Мефодий", amount: 900 },
+        { name: "Петрушка", amount: 700 },
+        { name: "Добрыня", amount: 300 },
+        { name: "Елисей", amount: 400 },
+      ],
+    },
+    {
+      id: "2026-12",
+      target: 0,
+      donators: [],
+    },
+  ],
+  minecraft: [],
 };
