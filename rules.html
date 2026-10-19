@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правила сбора и голосования — Стив Рембо и его друзья</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="rules">
+
+<div class="container">
+    <header class="site-header">
+        <h1>Правила сбора и голосования</h1>
+        <p class="note">Как распределяются донаты, копилка и сила голоса.</p>
+
+        <nav class="site-nav" data-role="site-nav" aria-label="Основная навигация"></nav>
+    </header>
+
+    <main>
+        <a class="back-link" href="index.html">← Все серверы</a>
+
+        <article class="server-card rules-content">
+            <h2>Донаты и копилка</h2>
+
+            <p>Донаты за текущий месяц идут на продление сервера в следующем месяце. У каждого месяца своя цель, которая указана в таблице.</p>
+
+            <p>Если за месяц собрано больше цели, излишек переносится в «копилку» пропорционально тому, сколько внёс каждый донатер за этот месяц.</p>
+
+            <p>Пример: цель 500 руб., внесено 600 руб. — 400 руб. одним донатером и 200 руб. другим. Излишек 100 руб. делится в той же пропорции 2:1 — 66,67 руб. в копилку первому и 33,33 руб. второму.</p>
+
+            <h2>Голосование</h2>
+
+            <p>В голосованиях по серверу у каждого проголосовавшего есть базовый голос 1, донатеры получают бонусные голоса. Сила голоса считается по формуле:</p>
+
+            <pre><code>Сила голоса = 1 + (Донат / Стоимость хостинга × Количество проголосовавших)</code></pre>
+
+            <p>Здесь «Донат» — сумма, внесённая игроком за текущий месяц. Дробный вес не округляется: если получилось 2,37, голос весит 2,37.</p>
+        </article>
+    </main>
+
+    <footer class="site-footer" data-role="site-footer"></footer>
+</div>
+
+<script src="js/data.js" defer></script>
+<script src="js/footer.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>
