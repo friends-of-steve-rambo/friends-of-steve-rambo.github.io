@@ -1,7 +1,7 @@
 // ============================================================
 // Общий скрипт сайта.
 //
-// Данные лежат в js/data.js (window.GAMES). Скрипт:
+// Данные лежат в data/games.js (window.GAMES). Скрипт:
 //   - строит навигацию по списку игр;
 //   - рисует карточки игр на главной;
 //   - заполняет общий шаблон game.html данными игры;
@@ -45,12 +45,33 @@
     }
 
     function getGameIdFromUrl() {
-        var params = new URLSearchParams(window.location.search);
-        return params.get('game') || '';
+        // Игра в ссылке — хеш: game.html#game=<id>. В отличие от
+        // query-параметра хеш не срезается при открытии страницы
+        // как файла и переживает редиректы локальных серверов.
+        var hash = String(window.location.hash || '').replace(/^#\/?/, '');
+        var hashId = hash.indexOf('game=') === 0 ? hash.slice('game='.length) : hash;
+
+        if (hashId) {
+            var decodedId = decodeURIComponent(hashId);
+
+            if (getGameById(decodedId)) {
+                return decodedId;
+            }
+        }
+
+        // Старые ссылки вида game.html?game=<id> продолжают работать.
+        var queryId = new URLSearchParams(window.location.search).get('game');
+
+        if (queryId) {
+            return queryId;
+        }
+
+        // Игра не указана — показываем первую.
+        return games.length > 0 ? games[0].id : '';
     }
 
     function getGameUrl(game) {
-        return 'game.html?game=' + encodeURIComponent(game.id);
+        return 'game.html#game=' + encodeURIComponent(game.id);
     }
 
     // --------------------------------------------------------
@@ -249,24 +270,110 @@
     // Сборы по месяцам
     // --------------------------------------------------------
 
-    function getMonths(gameData) {
-        if (Array.isArray(gameData.months)) {
-            // Сортируем по id, чтобы месяцы шли по порядку независимо
-            // от того, как они записаны в data.js.
-            return gameData.months.slice().sort(function (a, b) {
-                return String(a.id || '').localeCompare(String(b.id || ''));
-            });
+    function round2(value) {
+        return Math.round((toNumber(value) + Number.EPSILON) * 100) / 100;
+    }
+
+    function normalizeDonators(rawDonators) {
+        var byName = new Map();
+
+        (Array.isArray(rawDonators) ? rawDonators : []).forEach(function (donator) {
+            var name = String(donator && donator.name != null ? donator.name : '').trim();
+            var amount = round2(donator && donator.amount);
+
+            if (!name || amount <= 0) {
+                return;
+            }
+
+            // Одинаковые имена в одном месяце складываем.
+            byName.set(name, round2((byName.get(name) || 0) + amount));
+        });
+
+        return Array.from(byName, function (entry) {
+            return { name: entry[0], amount: entry[1] };
+        }).sort(function (a, b) {
+            return b.amount - a.amount;
+        });
+    }
+
+    // Копилка: излишек сверх цели делится пропорционально вкладам
+    // (правила — на rules.html).
+    function buildPiggyBank(donators, collected, target) {
+        if (target <= 0 || collected <= target) {
+            return [];
         }
 
-        // Совместимость со старой плоской структурой:
-        // { collected, target, donators }
-        return [{
-            id: 'current',
-            label: 'Текущий месяц',
-            collected: gameData.collected,
-            target: gameData.target,
-            donators: gameData.donators || []
-        }];
+        var k = target / collected;
+        var piggyTotal = 0;
+        var piggyBank = donators.map(function (donator) {
+            var piggy = round2(donator.amount * (1 - k));
+
+            piggyTotal += piggy;
+            return { name: donator.name, amount: piggy };
+        });
+
+        // Копейки от округления добиваем у самого крупного вклада,
+        // чтобы сумма копилки точно равнялась излишку.
+        var drift = round2((collected - target) - piggyTotal);
+
+        if (drift !== 0 && piggyBank.length > 0) {
+            piggyBank[0].amount = round2(piggyBank[0].amount + drift);
+        }
+
+        return piggyBank;
+    }
+
+    function normalizeMonth(rawMonth) {
+        if (!rawMonth || typeof rawMonth !== 'object') {
+            return null;
+        }
+
+        var donators = normalizeDonators(rawMonth.donators);
+        var collected = round2(donators.reduce(function (sum, donator) {
+            return sum + donator.amount;
+        }, 0));
+        var target = round2(rawMonth.target);
+        var piggyBank = buildPiggyBank(donators, collected, target);
+        var piggyByName = new Map();
+
+        piggyBank.forEach(function (entry) {
+            piggyByName.set(entry.name, entry.amount);
+        });
+
+        donators.forEach(function (donator) {
+            // Сколько из этого доната пошло в зачёт месяца: остальное
+            // уходит в копилку, потому что цель уже закрыта.
+            donator.credited = round2(donator.amount - (piggyByName.get(donator.name) || 0));
+        });
+
+        return {
+            id: rawMonth.id != null ? String(rawMonth.id) : '',
+            label: rawMonth.label ? String(rawMonth.label) : '',
+            collected: collected,
+            target: target,
+            donators: donators,
+            piggyBank: piggyBank
+        };
+    }
+
+    // Сборы берём из data/donations.js (объект window.DONATIONS).
+    // collected и копилка считаются здесь, в файле лежат только
+    // цель и список донатеров.
+    function getMonths(gameData) {
+        var rawMonths = window.DONATIONS ? window.DONATIONS[gameData.id] : null;
+
+        if (!Array.isArray(rawMonths)) {
+            return [];
+        }
+
+        // Сортируем по id, чтобы месяцы шли по порядку независимо
+        // от того, как они записаны в файле.
+        return rawMonths
+            .map(normalizeMonth)
+            .filter(Boolean)
+            .sort(function (a, b) {
+                return String(a.id).localeCompare(String(b.id));
+            });
     }
 
     function formatMonth(month) {
@@ -384,12 +491,23 @@
             donators.slice(start, end).forEach(function (donator) {
                 var item = document.createElement('li');
                 var name = document.createElement('strong');
+                var credited = donator.credited != null
+                    ? toNumber(donator.credited)
+                    : toNumber(donator.amount);
+                var donated = toNumber(donator.amount);
 
-                // textContent вместо innerHTML — чтобы имена из таблицы
-                // не могли вставить разметку на страницу.
+                // textContent вместо innerHTML — имена не смогут
+                // вставить разметку на страницу.
                 name.textContent = donator.name;
                 item.appendChild(name);
-                item.appendChild(document.createTextNode(' — ' + formatMoney(donator.amount) + ' руб.'));
+                item.appendChild(document.createTextNode(' — ' + formatMoney(credited) + ' руб.'));
+
+                // Если часть доната ушла в копилку, показываем в скобках,
+                // сколько человек задонатил за месяц на самом деле.
+                if (donated !== credited) {
+                    item.appendChild(document.createTextNode(' (задоначено ' + formatMoney(donated) + ' руб.)'));
+                }
+
                 list.appendChild(item);
             });
 
@@ -423,6 +541,31 @@
         }
 
         renderPage();
+    }
+
+    // Простой список «имя — сумма» без пагинации (например, копилка).
+    function renderAmountList(container, entries) {
+        if (!container) {
+            return;
+        }
+
+        container.textContent = '';
+
+        var list = document.createElement('ul');
+
+        entries.forEach(function (entry) {
+            var item = document.createElement('li');
+            var name = document.createElement('strong');
+
+            // textContent вместо innerHTML — имена не смогут
+            // вставить разметку на страницу.
+            name.textContent = entry.name;
+            item.appendChild(name);
+            item.appendChild(document.createTextNode(' — ' + formatMoney(entry.amount) + ' руб.'));
+            list.appendChild(item);
+        });
+
+        container.appendChild(list);
     }
 
     function renderProgress(bar, fill, collected, target) {
@@ -466,7 +609,9 @@
         var targetEl = panel.querySelector('[data-role="month-target"]');
         var targetUnit = panel.querySelector('[data-role="month-target-unit"]');
         var pendingNote = panel.querySelector('[data-role="month-pending-note"]');
-        var completeNote = panel.querySelector('[data-role="month-complete-note"]');
+        var piggyBlock = panel.querySelector('[data-role="month-piggy"]');
+        var piggyTotalEl = panel.querySelector('[data-role="month-piggy-total"]');
+        var piggyList = panel.querySelector('[data-role="month-piggy-list"]');
 
         tabs.textContent = '';
 
@@ -537,9 +682,21 @@
                 pendingNote.hidden = hasTarget;
             }
 
-            if (completeNote) {
-                completeNote.hidden = !(hasTarget && safeCollected >= safeTarget);
+            // Копилка: сколько сверх цели уйдёт дальше и от кого.
+            var piggy = month.piggyBank || [];
+            var piggyTotal = piggy.reduce(function (sum, entry) {
+                return sum + toNumber(entry.amount);
+            }, 0);
+
+            if (piggyBlock) {
+                piggyBlock.hidden = piggy.length === 0;
             }
+
+            if (piggyTotalEl) {
+                piggyTotalEl.textContent = formatMoney(piggyTotal);
+            }
+
+            renderAmountList(piggyList, piggy);
 
             renderDonators(donatorsEl, month.donators || []);
         }
@@ -617,4 +774,11 @@
     renderNav();
     renderGameCards();
     renderGamePage();
+
+    // Ссылки вида game.html#game=<id> меняют только хеш, поэтому
+    // перерисовываем страницу и при его смене.
+    window.addEventListener('hashchange', function () {
+        renderNav();
+        renderGamePage();
+    });
 })();

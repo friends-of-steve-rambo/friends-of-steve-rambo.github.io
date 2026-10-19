@@ -205,6 +205,23 @@ h1, h2, h3 {
     margin-top: 0;
 }
 
+.server-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 10px 0 20px;
+}
+
+.server-card__header h2 {
+    margin: 0;
+}
+
+.server-card__header .status-badge {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
 .status-badge {
     display: inline-block;
     padding: 5px 10px;
@@ -280,18 +297,20 @@ h1, h2, h3 {
     margin-left: auto;
 }
 
-.fund-complete-note {
-    margin: 12px 0 0;
-    padding: 10px 12px;
-    border-left: 3px solid #7ed957;
-    border-radius: 4px;
-    background: rgba(86, 171, 47, 0.12);
-    color: var(--text-color);
-    font-size: 0.9em;
-}
-
 .month-pending-note {
     margin: 8px 0 0;
+}
+
+.piggy-block {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-left: 3px solid #f2c94c;
+    border-radius: 4px;
+    background: rgba(242, 201, 76, 0.12);
+}
+
+.piggy-block .note {
+    margin: 0 0 8px;
 }
 
 /* Переключатель месяцев */

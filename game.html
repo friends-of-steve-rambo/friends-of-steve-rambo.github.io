@@ -24,10 +24,13 @@
             Такой игры нет. <a href="index.html">Вернуться на главную</a>.
         </p>
 
-        <!-- Шаблон страницы игры, заполняется из js/data.js -->
+        <!-- Шаблон страницы игры: статика из data/games.js,
+             сборы — из data/donations.js -->
         <article class="server-card" data-role="game-page" data-fund-widget hidden>
-            <span class="status-badge" data-role="game-status"></span>
-            <h2 data-role="game-card-title"></h2>
+            <div class="server-card__header">
+                <h2 data-role="game-card-title"></h2>
+                <span class="status-badge" data-role="game-status"></span>
+            </div>
 
             <!-- Общий список донатеров -->
             <section class="fund-section" aria-labelledby="game-donators-title" data-role="donators-block">
@@ -47,8 +50,8 @@
                        href="rules.html"
                        target="_blank"
                        rel="noopener"
-                       title="Правила сбора и ведения таблицы"
-                       aria-label="Правила сбора и ведения таблицы">?</a>
+                       title="Правила сбора и начисления донатов"
+                       aria-label="Правила сбора и начисления донатов">?</a>
                 </div>
 
                 <div class="month-panel" id="game-month-panel" role="tabpanel" data-role="month-panel">
@@ -73,13 +76,16 @@
                         Цель на этот месяц ещё не задана.
                     </p>
 
-                    <p class="fund-complete-note" data-role="month-complete-note" hidden>
-                        Сбор на этот месяц закончен. Все донаты сверх необходимого будут перераспределены на следующий месяц пропорционально.
-                    </p>
-
                     <h4>Список молодцов этого месяца</h4>
                     <div class="donators-list" data-role="month-donators">
                         <p class="empty-state">Загрузка...</p>
+                    </div>
+
+                    <div class="piggy-block" data-role="month-piggy" hidden>
+                        <p class="note">
+                            Сверх цели собрано <strong data-role="month-piggy-total">0</strong> руб. — эта сумма уходит в копилку пропорционально вкладам:
+                        </p>
+                        <div class="donators-list" data-role="month-piggy-list"></div>
                     </div>
                 </div>
             </section>
@@ -99,7 +105,8 @@
     <footer class="site-footer" data-role="site-footer"></footer>
 </div>
 
-<script src="js/data.js" defer></script>
+<script src="data/games.js" defer></script>
+<script src="data/donations.js" defer></script>
 <script src="js/footer.js" defer></script>
 <script src="js/main.js" defer></script>
 </body>
