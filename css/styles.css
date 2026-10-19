@@ -1,0 +1,611 @@
+/* ============================================================
+   Общие стили сайта
+   ============================================================ */
+
+:root {
+    --bg-color: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --card-bg-alt: rgba(0, 0, 0, 0.2);
+    --accent-color: #ff4655;
+    --text-color: #ffffff;
+    --text-secondary: #aaaaaa;
+    --border-color: #3d3d3d;
+    --radius: 8px;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    --max-width: 900px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    color-scheme: dark;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+a {
+    color: var(--accent-color);
+}
+
+h1, h2, h3 {
+    line-height: 1.25;
+}
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+/* ============================================================
+   Шапка и навигация
+   ============================================================ */
+
+.site-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.site-header h1 {
+    margin: 0 0 8px;
+}
+
+.site-header p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.site-nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 6px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+    color: var(--text-color);
+    background: rgba(255, 70, 85, 0.15);
+    border-color: var(--accent-color);
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: var(--text-color);
+}
+
+/* ============================================================
+   Главная страница: карточки игр
+   ============================================================ */
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-bg);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.game-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 70, 85, 0.5);
+}
+
+/* Закрытая или не запланированная игра */
+.game-card--closed {
+    background-color: #262626;
+    border-style: dashed;
+    border-color: var(--border-color);
+    opacity: 0.72;
+}
+
+.game-card--closed:hover {
+    opacity: 1;
+    border-color: rgba(255, 70, 85, 0.45);
+}
+
+.game-card--closed .button {
+    background-color: #4a4a4a;
+    color: var(--text-secondary);
+}
+
+.game-card--closed .button:hover {
+    filter: none;
+    color: var(--text-color);
+}
+
+.game-card h2 {
+    margin: 12px 0 8px;
+}
+
+.game-card h2 a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.game-card h2 a:hover {
+    color: var(--accent-color);
+}
+
+.game-card p {
+    margin: 0 0 20px;
+    color: var(--text-secondary);
+}
+
+.game-card .button {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 18px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: filter 0.2s;
+}
+
+.button:hover {
+    filter: brightness(1.1);
+}
+
+/* ============================================================
+   Карточка сервера
+   ============================================================ */
+
+.server-card {
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+}
+
+.server-card h2 {
+    margin: 10px 0 20px;
+}
+
+.server-card h3 {
+    margin-top: 0;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background: #444;
+    font-size: 0.9em;
+}
+
+.status-badge--dev {
+    color: #ffb703;
+}
+
+.status-badge--live {
+    color: #7bd88f;
+}
+
+.status-badge--planned {
+    color: #9ecbff;
+}
+
+.status-badge--closed {
+    color: #ff9b9b;
+    background: #3a2626;
+}
+
+/* ============================================================
+   Сбор средств
+   ============================================================ */
+
+.fund-section {
+    margin-bottom: 24px;
+}
+
+.fund-section:last-of-type {
+    margin-bottom: 0;
+}
+
+.fund-section > h3 {
+    margin-bottom: 12px;
+}
+
+.progress-bar {
+    position: relative;
+    height: 20px;
+    background: #444;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #56ab2f, #a8ff78);
+    transition: width 1s ease-in-out;
+}
+
+.fund-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 4px 12px;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.fund-info strong {
+    color: var(--text-color);
+}
+
+.fund-info-target {
+    margin-left: auto;
+}
+
+.fund-complete-note {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-left: 3px solid #7ed957;
+    border-radius: 4px;
+    background: rgba(86, 171, 47, 0.12);
+    color: var(--text-color);
+    font-size: 0.9em;
+}
+
+.month-pending-note {
+    margin: 8px 0 0;
+}
+
+/* Переключатель месяцев */
+.month-controls {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.month-controls .month-tabs {
+    flex: 0 1 auto;
+    margin-bottom: 0;
+}
+
+.rules-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.rules-link:hover,
+.rules-link:focus-visible {
+    color: var(--text-color);
+    border-color: var(--accent-color);
+    background: rgba(255, 70, 85, 0.12);
+}
+
+.rules-link:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.month-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.month-tab {
+    padding: 6px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.month-tab:hover {
+    color: var(--text-color);
+    border-color: rgba(255, 70, 85, 0.5);
+}
+
+.month-tab[aria-selected="true"] {
+    color: var(--text-color);
+    background: rgba(255, 70, 85, 0.15);
+    border-color: var(--accent-color);
+}
+
+.month-tab:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.month-panel {
+    padding: 16px;
+    background: var(--card-bg-alt);
+    border-radius: 6px;
+}
+
+.month-panel h4 {
+    margin: 0 0 12px;
+}
+
+.month-panel h4:not(:first-child) {
+    margin-top: 20px;
+}
+
+.donators-list {
+    background: var(--card-bg-alt);
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.donators-list ul {
+    margin: 0;
+}
+
+.donators-list li:last-child {
+    margin-bottom: 0;
+}
+
+.donators-list strong {
+    color: var(--text-color);
+}
+
+.empty-state {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+/* Постраничная выдача донатеров */
+.donators-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.donators-page-button {
+    padding: 5px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-color);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.donators-page-button:hover:not(:disabled) {
+    background: rgba(255, 70, 85, 0.15);
+    border-color: var(--accent-color);
+}
+
+.donators-page-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.donators-page-status {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+/* ============================================================
+   Решения, списки, служебные блоки
+   ============================================================ */
+
+.decision-block {
+    margin-top: 20px;
+    padding-left: 15px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.decision-block ul {
+    margin-bottom: 0;
+}
+
+ul {
+    padding-left: 20px;
+    color: var(--text-secondary);
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+.note {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.not-found {
+    text-align: center;
+}
+
+/* Заглушки для текста, который ещё не заполнен */
+.placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.75;
+}
+
+.site-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+}
+
+.site-footer p {
+    margin: 0;
+}
+
+.site-footer p + p {
+    margin-top: 6px;
+}
+
+/* Страница правил */
+.rules-content h2 {
+    margin: 32px 0 12px;
+}
+
+.rules-content h2:first-child {
+    margin-top: 0;
+}
+
+.rules-content h3 {
+    margin: 24px 0 10px;
+}
+
+.rules-content ul,
+.rules-content ol {
+    margin: 8px 0 16px;
+    color: var(--text-secondary);
+}
+
+.rules-content code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.92em;
+}
+
+.rules-content pre {
+    margin: 12px 0 18px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    background: #1e1e1e;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.rules-content pre code {
+    padding: 0;
+    background: transparent;
+    font-size: 0.86em;
+    line-height: 1.55;
+    white-space: pre;
+}
+
+.rules-content .table-wrap {
+    margin: 12px 0 18px;
+    overflow-x: auto;
+}
+
+.rules-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.rules-content th,
+.rules-content td {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: top;
+}
+
+.rules-content th {
+    background: var(--card-bg-alt);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.rules-content td {
+    color: var(--text-secondary);
+}
+
+.rules-content strong {
+    color: var(--text-color);
+}
+
+/* ============================================================
+   Адаптивность и предпочтения пользователя
+   ============================================================ */
+
+@media (max-width: 480px) {
+    body {
+        padding: 14px;
+    }
+
+    .server-card {
+        padding: 18px;
+    }
+
+    .fund-info {
+        flex-direction: column;
+    }
+
+    .fund-info-target {
+        margin-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра — Стив Рембо и его друзья</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="game">
+
+<div class="container">
+    <header class="site-header">
+        <h1 data-role="game-title">Игра</h1>
+        <p class="placeholder" data-role="game-description">[Заполнить: краткое описание сервера]</p>
+
+        <nav class="site-nav" data-role="site-nav" aria-label="Основная навигация"></nav>
+    </header>
+
+    <main>
+        <a class="back-link" href="index.html">← Все серверы</a>
+
+        <p class="note" data-role="game-error" hidden>
+            Такой игры нет. <a href="index.html">Вернуться на главную</a>.
+        </p>
+
+        <!-- Шаблон страницы игры, заполняется из js/data.js -->
+        <article class="server-card" data-role="game-page" data-fund-widget hidden>
+            <span class="status-badge" data-role="game-status"></span>
+            <h2 data-role="game-card-title"></h2>
+
+            <!-- Общий список донатеров -->
+            <section class="fund-section" aria-labelledby="game-donators-title" data-role="donators-block">
+                <h3 id="game-donators-title">Топ донатеров за все время:</h3>
+                <div class="donators-list" data-role="total-donators">
+                    <p class="empty-state">Загрузка списка спонсоров...</p>
+                </div>
+            </section>
+
+            <!-- Сбор по месяцам -->
+            <section class="fund-section" aria-labelledby="game-monthly-title" data-role="monthly-block">
+                <h3 id="game-monthly-title">По месяцам:</h3>
+
+                <div class="month-controls">
+                    <div class="month-tabs" role="tablist" aria-label="Выбор месяца" data-role="month-tabs"></div>
+                    <a class="rules-link"
+                       href="rules.html"
+                       target="_blank"
+                       rel="noopener"
+                       title="Правила сбора и ведения таблицы"
+                       aria-label="Правила сбора и ведения таблицы">?</a>
+                </div>
+
+                <div class="month-panel" id="game-month-panel" role="tabpanel" data-role="month-panel">
+                    <h4 data-role="month-title">—</h4>
+
+                    <div class="progress-bar"
+                         data-role="month-progress-bar"
+                         role="progressbar"
+                         aria-label="Сбор за выбранный месяц"
+                         aria-valuemin="0"
+                         aria-valuemax="0"
+                         aria-valuenow="0">
+                        <div class="progress-fill" data-role="month-progress-fill"></div>
+                    </div>
+                    <div class="fund-info">
+                        <span>Собрано: <strong data-role="month-collected">0</strong> руб.</span>
+                        <span>Осталось собрать: <strong data-role="month-remaining">0</strong> <span data-role="month-remaining-unit">руб.</span></span>
+                        <span class="fund-info-target">Цель: <strong data-role="month-target">0</strong> <span data-role="month-target-unit">руб.</span></span>
+                    </div>
+
+                    <p class="note month-pending-note" data-role="month-pending-note" hidden>
+                        Цель на этот месяц ещё не задана.
+                    </p>
+
+                    <p class="fund-complete-note" data-role="month-complete-note" hidden>
+                        Сбор на этот месяц закончен. Все донаты сверх необходимого будут перераспределены на следующий месяц пропорционально.
+                    </p>
+
+                    <h4>Список молодцов этого месяца</h4>
+                    <div class="donators-list" data-role="month-donators">
+                        <p class="empty-state">Загрузка...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Настройки сервера -->
+            <div class="decision-block" data-role="settings-block">
+                <h3 data-role="settings-title">Настройки</h3>
+                <ul data-role="settings-list"></ul>
+            </div>
+        </article>
+
+        <noscript>
+            <p class="note">Для отображения страницы игры включите JavaScript.</p>
+        </noscript>
+    </main>
+
+    <footer class="site-footer" data-role="site-footer"></footer>
+</div>
+
+<script src="js/data.js" defer></script>
+<script src="js/footer.js" defer></script>
+<script src="js/main.js" defer></script>
+</body>
+</html>
