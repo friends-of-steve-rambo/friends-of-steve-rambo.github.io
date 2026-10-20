@@ -26,11 +26,10 @@
 window.DONATIONS = {
   zomboid: [
     {
-      // Тестовый донат номиналом 1 руб.
       id: '2026-11',
       target: 1050,
       donators: [
-        { name: 'Тестовый донат', amount: 1 }
+        { name: 'Павел А.', amount: 1500 }
       ]
     }
   ],
