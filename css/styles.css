@@ -452,6 +452,29 @@ body[data-page="game"] .site-header .site-nav {
     color: var(--text-color);
 }
 
+.progress-hints {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 8px;
+}
+
+.progress-hint {
+    display: inline-block;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    text-decoration-color: rgba(169, 176, 184, 0.45);
+    text-underline-offset: 3px;
+    transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.progress-hint:hover,
+.progress-hint:focus-visible {
+    color: var(--accent-color);
+    text-decoration-color: currentColor;
+}
+
 /* Итоги сбора: собрано / осталось / цель */
 .fund-stats {
     display: grid;
@@ -930,6 +953,97 @@ li {
 .note {
     color: var(--text-secondary);
     font-size: 0.9em;
+}
+
+/* Страница контактов: лендинг без карточки */
+.contacts-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin: 12px 0 40px;
+    padding: clamp(20px, 4vw, 40px) 0;
+}
+
+.contacts-hero::before {
+    content: 'НЕТ';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    font-size: clamp(12rem, 40vw, 26rem);
+    font-weight: 900;
+    line-height: 0.7;
+    letter-spacing: -0.1em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 70, 85, 0.14);
+    pointer-events: none;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.contacts-hero__title {
+    margin: 0;
+    color: var(--text-color);
+    font-size: clamp(1.5rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 0.98;
+}
+
+.contacts-hero__line {
+    display: block;
+}
+
+.contacts-hero__line--no {
+    color: var(--accent-color);
+    font-style: italic;
+    text-shadow: 0 0 30px rgba(255, 70, 85, 0.35);
+}
+
+.contacts-hero__line--aside {
+    margin-top: 0.35em;
+    color: var(--text-secondary);
+    font-size: 0.48em;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.contacts-hero__line--shout {
+    margin-top: 0.28em;
+    color: var(--accent-color);
+    font-size: 0.72em;
+    line-height: 1.1;
+}
+
+.contacts-hero__caption {
+    display: inline-block;
+    margin: clamp(26px, 5vw, 42px) 0 0;
+    padding: 10px 16px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-hover);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    transform: rotate(-2deg);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.contacts-hero__caption:hover {
+    border-color: var(--accent-color);
+    transform: rotate(0);
+}
+
+.contacts-hero__caption a {
+    color: var(--text-color);
+    font-weight: 700;
+    text-decoration-color: var(--accent-color);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.contacts-hero__caption a:hover {
+    color: var(--accent-color);
 }
 
 .not-found {
