@@ -13,6 +13,8 @@
 //   emoji        — иконка перед названием;
 //   status       — текст и модификатор бейджа (dev, live, planned, closed);
 //   description  — описание; пустая строка означает заглушку;
+//   hosting      — необязательная справка о хостинге:
+//                  { name, url }; url — ссылка на тариф, name — его название;
 //   settingsTitle — заголовок блока настроек;
 //   settingsGroups — настройки по группам (например, по файлам):
 //                    { title, file, items: [...] };
@@ -36,6 +38,10 @@ window.GAMES = [
             modifier: 'dev'
         },
         description: 'Че ранарод погнали Nah00y: build 42',
+        hosting: {
+            name: 'HVDS-8G',
+            url: 'https://hosting-vds.com/vds-russia'
+        },
         settingsTitle: 'Настройки сервера',
         settingsGroups: [
             {

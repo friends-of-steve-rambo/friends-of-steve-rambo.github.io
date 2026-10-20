@@ -329,6 +329,45 @@
         }
     }
 
+    // Необязательная справка: выбранный хостинг и ссылка на его тариф.
+    // Блок есть в шаблоне всегда, но показывается только если игра
+    // указала hosting в data/games.js.
+    function renderHosting(gameData) {
+        var hint = document.querySelector('[data-role="game-hosting"]');
+
+        if (!hint) {
+            return;
+        }
+
+        var link = hint.querySelector('[data-role="game-hosting-link"]');
+        var hosting = gameData.hosting;
+
+        if (!hosting || !hosting.name) {
+            hint.hidden = true;
+
+            if (link) {
+                link.textContent = '';
+                link.removeAttribute('href');
+            }
+
+            return;
+        }
+
+        hint.hidden = false;
+
+        if (link) {
+            link.textContent = hosting.name;
+
+            if (hosting.url) {
+                link.href = hosting.url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            } else {
+                link.removeAttribute('href');
+            }
+        }
+    }
+
     function renderGamePage() {
         var page = document.querySelector('[data-role="game-page"]');
 
@@ -396,6 +435,7 @@
         }
 
         renderSettings(game);
+        renderHosting(game);
 
         renderFundWidget(page, game);
         page.hidden = false;
