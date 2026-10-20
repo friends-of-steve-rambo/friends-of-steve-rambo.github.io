@@ -577,29 +577,6 @@ body[data-page="game"] .site-header .site-nav {
     outline-offset: 2px;
 }
 
-.rules-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-weight: 700;
-    line-height: 1;
-    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
-}
-
-.rules-link:hover,
-.rules-link:focus-visible {
-    color: var(--text-color);
-    border-color: var(--accent-color);
-    background: var(--accent-soft);
-}
-
 /* Панель выбранного месяца */
 .month-panel {
     padding: 20px;
