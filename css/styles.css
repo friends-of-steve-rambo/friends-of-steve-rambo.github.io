@@ -801,9 +801,65 @@ body[data-page="game"] .site-header .site-nav {
     white-space: nowrap;
 }
 
+/* Пояснение под именем: полный взнос и вклад в силу голоса */
+.donator__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 10px;
+}
+
 .donator__note {
     font-size: 0.78rem;
     color: var(--text-muted);
+}
+
+.donator__ratio {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Формула силы голоса в рамке списка: вся строка — ссылка на правила */
+.vote-formula {
+    display: block;
+    margin: 6px -6px -6px;
+    padding: 12px 10px;
+    border-top: 1px solid var(--border-color);
+    border-radius: 0 0 7px 7px;
+    background: rgba(0, 0, 0, 0.16);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.vote-formula:hover,
+.vote-formula:focus-visible {
+    background: var(--accent-soft);
+    color: var(--text-color);
+}
+
+.vote-formula__label {
+    margin-right: 4px;
+    color: var(--text-color);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.vote-formula__expr {
+    font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.vote-formula__arrow {
+    margin-left: 6px;
+    color: var(--accent-color);
+    font-weight: 700;
 }
 
 .donator__amount {

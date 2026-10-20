@@ -771,12 +771,30 @@
         name.textContent = entry.name;
         info.appendChild(name);
 
-        if (options.note) {
-            var note = document.createElement('span');
+        // Пояснение под именем: полный взнос и вклад в силу голоса.
+        if (options.note || options.ratio) {
+            var meta = document.createElement('span');
 
-            note.className = 'donator__note';
-            note.textContent = options.note;
-            info.appendChild(note);
+            meta.className = 'donator__meta';
+
+            if (options.note) {
+                var note = document.createElement('span');
+
+                note.className = 'donator__note';
+                note.textContent = options.note;
+                meta.appendChild(note);
+            }
+
+            if (options.ratio) {
+                var ratio = document.createElement('span');
+
+                ratio.className = 'donator__ratio';
+                ratio.textContent = 'коэф. ' + formatMoney(options.ratio);
+                ratio.title = 'Коэффициент: учтённый донат / общая сумма сбора';
+                meta.appendChild(ratio);
+            }
+
+            info.appendChild(meta);
         }
 
         item.appendChild(info);
@@ -788,18 +806,55 @@
         return item;
     }
 
-    function renderDonators(container, donators) {
+    // Формула силы голоса под списком. Вся формула — ссылка
+    // на раздел правил о силе голоса.
+    function createVoteFormula(href) {
+        var link = document.createElement('a');
+        var label = document.createElement('span');
+        var expr = document.createElement('span');
+        var arrow = document.createElement('span');
+
+        link.className = 'vote-formula';
+        link.href = href;
+        link.title = 'Подробнее в правилах голосования';
+
+        label.className = 'vote-formula__label';
+        label.textContent = 'Вес голоса';
+
+        expr.className = 'vote-formula__expr';
+        expr.textContent = '= 1 + (коэф × количество проголосовавших)';
+
+        arrow.className = 'vote-formula__arrow';
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.textContent = '→';
+        expr.appendChild(arrow);
+
+        link.appendChild(label);
+        link.appendChild(expr);
+
+        return link;
+    }
+
+    function renderDonators(container, donators, options) {
         if (!container) {
             return;
         }
 
         container.textContent = '';
 
+        var hostingCost = toNumber(options && options.hostingCost);
+        var formulaLink = options && options.formulaLink;
+
         if (!donators || donators.length === 0) {
             var empty = document.createElement('p');
             empty.className = 'empty-state';
             empty.textContent = 'Станьте первым, кто поддержит сервер!';
             container.appendChild(empty);
+
+            if (formulaLink) {
+                container.appendChild(createVoteFormula(formulaLink));
+            }
+
             return;
         }
 
@@ -845,6 +900,7 @@
                     ? toNumber(donator.credited)
                     : toNumber(donator.amount);
                 var donated = toNumber(donator.amount);
+                var ratio = hostingCost > 0 ? credited / hostingCost : 0;
 
                 list.appendChild(createDonatorRow(
                     { name: donator.name, amount: credited },
@@ -857,7 +913,11 @@
                         // показываем, сколько человек внёс за месяц.
                         note: donator.note || (donated !== credited
                             ? 'задоначено ' + formatMoney(donated) + ' руб.'
-                            : '')
+                            : ''),
+                        // Коэффициент для формулы силы голоса:
+                        // учтённый донат / общая сумма сбора
+                        // (см. rules.html).
+                        ratio: ratio > 0 ? ratio : 0
                     }
                 ));
             });
@@ -889,6 +949,10 @@
             pagination.appendChild(status);
             pagination.appendChild(nextButton);
             container.appendChild(pagination);
+        }
+
+        if (formulaLink) {
+            container.appendChild(createVoteFormula(formulaLink));
         }
 
         renderPage();
@@ -1077,7 +1141,12 @@
 
             renderAmountList(piggyList, piggy);
 
-            renderDonators(donatorsEl, month.donators || []);
+            renderDonators(donatorsEl, month.donators || [], {
+                // Цель месяца — это стоимость продления хостинга,
+                // поэтому она же база для веса голоса.
+                hostingCost: safeTarget,
+                formulaLink: 'rules.html#vote-strength'
+            });
         }
 
         tabs.addEventListener('click', function (event) {
