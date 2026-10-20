@@ -22,6 +22,10 @@
 //                    элемент: { key, label, value, default };
 //   settings     — простой плоский список: { label, value };
 //                  используется, если settingsGroups не задан;
+//   modsTitle    — заголовок блока модов (по умолчанию «Моды»);
+//   mods         — общий список модов: { name, description, badge, badgeModifier };
+//                  description показывается в скобках, badge — бейдж справа;
+//                  badgeModifier: 'custom' — акцентный бейдж (самописный мод);
 //
 // Сборы по месяцам здесь не хранятся: донаты, цели и копилка
 // лежат в data/donations.js.
@@ -70,15 +74,17 @@ window.GAMES = [
                     { key: 'MultiplierConfig.Global', label: 'скорость прокачки навыков', value: '×2', default: '×1.0' },
                     { key: 'MinutesPerPage', label: 'время чтения страницы книги', value: '0.5 (×4 быстрее)', default: '2' }
                 ]
-            },
-            {
-                title: 'Моды',
-                items: [
-                    { label: 'Сторонние моды', value: '—' },
-                    { label: 'Самописные моды', value: 'Survivor Metrics' }
-                ]
             }
         ],
+        modsTitle: 'Моды',
+        mods: [
+            {
+                name: 'Survivor Metrics',
+                description: 'считает время онлайна и другую статистику, а по ней подстраивает сложность',
+                badge: 'Самописный',
+                badgeModifier: 'custom'
+            }
+        ]
     },
 
     {

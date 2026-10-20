@@ -329,6 +329,105 @@
         }
     }
 
+    // --------------------------------------------------------
+    // Моды: общий список, название + описание в скобках + бейдж
+    // --------------------------------------------------------
+
+    function createModItem(mod) {
+        var item = document.createElement('li');
+        var main = document.createElement('span');
+        var name = document.createElement('span');
+
+        item.className = 'mod-item';
+        main.className = 'mod-item__main';
+        name.className = 'mod-item__name';
+        name.textContent = mod.name || '[Без названия]';
+
+        main.appendChild(name);
+
+        if (mod.description) {
+            var description = document.createElement('span');
+
+            description.className = 'mod-item__description';
+            description.textContent = '(' + mod.description + ')';
+            main.appendChild(description);
+        }
+
+        item.appendChild(main);
+
+        if (mod.badge) {
+            var badge = document.createElement('span');
+
+            badge.className = 'mod-badge';
+            badge.textContent = mod.badge;
+
+            if (mod.badgeModifier) {
+                badge.classList.add('mod-badge--' + mod.badgeModifier);
+            }
+
+            item.appendChild(badge);
+        }
+
+        return item;
+    }
+
+    function renderMods(gameData) {
+        var block = document.querySelector('[data-role="mods-block"]');
+        var list = document.querySelector('[data-role="mods-list"]');
+        var mods = Array.isArray(gameData.mods) ? gameData.mods : [];
+
+        if (block) {
+            block.hidden = mods.length === 0;
+        }
+
+        if (!list) {
+            return;
+        }
+
+        list.textContent = '';
+
+        if (mods.length === 0) {
+            return;
+        }
+
+        var title = document.querySelector('[data-role="mods-title"]');
+
+        if (title) {
+            title.textContent = gameData.modsTitle || 'Моды';
+        }
+
+        mods.forEach(function (mod) {
+            list.appendChild(createModItem(mod));
+        });
+    }
+
+    // Сворачиваемые секции страницы игры. Заголовок — настоящая кнопка,
+    // поэтому работают Enter/Space, фокус и скринридеры (aria-expanded).
+    function setupCollapsibleSections() {
+        var toggles = document.querySelectorAll('[data-role="section-toggle"]');
+
+        Array.prototype.forEach.call(toggles, function (toggle) {
+            var bodyId = toggle.getAttribute('aria-controls');
+            var body = bodyId ? document.getElementById(bodyId) : null;
+
+            if (!body) {
+                return;
+            }
+
+            toggle.addEventListener('click', function () {
+                var expanded = toggle.getAttribute('aria-expanded') !== 'false';
+                var section = toggle.closest('section');
+
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                body.hidden = expanded;
+
+                if (section) {
+                    section.classList.toggle('is-collapsed', expanded);
+                }
+            });
+        });
+    }
+
     // Необязательная справка: выбранный хостинг и ссылка на его тариф.
     // Блок есть в шаблоне всегда, но показывается только если игра
     // указала hosting в data/games.js.
@@ -435,6 +534,7 @@
         }
 
         renderSettings(game);
+        renderMods(game);
         renderHosting(game);
 
         renderFundWidget(page, game);
@@ -1074,6 +1174,7 @@
     renderGameCards();
     renderHomeTop();
     renderGamePage();
+    setupCollapsibleSections();
 
     // Ссылки вида game.html#game=<id> меняют только хеш, поэтому
     // перерисовываем страницу и при его смене.
