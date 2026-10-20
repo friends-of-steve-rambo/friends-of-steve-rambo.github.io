@@ -61,7 +61,8 @@ window.GAMES = [
                     { key: 'WaterShut', label: 'отключение воды', value: '3 (0–2 месяца)', default: '2 (0–30 дней)' },
                     { key: 'ElecShut', label: 'отключение электричества', value: '3 (14 дней–2 месяца)', default: '2 (14–30 дней)' },
                     // Прокачка персонажа
-                    { key: 'MultiplierConfig.Global', label: 'скорость прокачки навыков', value: '×3', default: '×1.0' }
+                    { key: 'MultiplierConfig.Global', label: 'скорость прокачки навыков', value: '×2', default: '×1.0' },
+                    { key: 'MinutesPerPage', label: 'время чтения страницы книги', value: '0.5 (×4 быстрее)', default: '2' }
                 ]
             },
             {
