@@ -29,7 +29,8 @@ window.DONATIONS = {
       id: '2026-11',
       target: 1050,
       donators: [
-        { name: 'Павел А.', amount: 1500 }
+        { name: 'Павел А.', amount: 1500 },
+        { name: 'Алексей З.', amount: 1000 }
       ]
     }
   ],
