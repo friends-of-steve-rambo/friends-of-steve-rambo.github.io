@@ -175,6 +175,160 @@
     // Страница игры
     // --------------------------------------------------------
 
+    // Простая строка «параметр — значение» (игры без групп).
+    function createSettingsRow(setting) {
+        var item = document.createElement('li');
+        var label = document.createElement('span');
+        var value = document.createElement('span');
+
+        item.className = 'settings-row';
+        label.className = 'settings-row__label';
+        value.className = 'settings-row__value';
+
+        label.textContent = setting.label;
+        value.textContent = setting.value || '[Заполнить]';
+
+        if (!setting.value) {
+            value.classList.add('placeholder');
+        }
+
+        item.appendChild(label);
+        item.appendChild(value);
+
+        return item;
+    }
+
+    // Компактная настройка: сначала ключ и русская подпись в скобках,
+    // затем переход «дефолт → новое значение».
+    function createSettingsItem(setting) {
+        var item = document.createElement('li');
+        var name = document.createElement('span');
+        var values = document.createElement('span');
+        var value = document.createElement('span');
+
+        item.className = 'settings-item';
+        name.className = 'settings-item__name';
+
+        if (setting.key) {
+            var key = document.createElement('code');
+
+            key.className = 'settings-item__key';
+            key.textContent = setting.key;
+            name.appendChild(key);
+        }
+
+        if (setting.label) {
+            var label = document.createElement('span');
+
+            label.className = 'settings-item__label';
+            label.textContent = setting.key
+                ? '(' + setting.label + ')'
+                : setting.label;
+            name.appendChild(label);
+        }
+
+        item.appendChild(name);
+
+        values.className = 'settings-item__values';
+
+        if (setting.default != null && setting.default !== '') {
+            var defaultValue = document.createElement('span');
+            var arrow = document.createElement('span');
+
+            defaultValue.className = 'settings-item__default';
+            defaultValue.textContent = setting.default;
+
+            arrow.className = 'settings-item__arrow';
+            arrow.setAttribute('aria-hidden', 'true');
+            arrow.textContent = '→';
+
+            values.appendChild(defaultValue);
+            values.appendChild(arrow);
+        }
+
+        value.className = 'settings-item__value';
+        value.textContent = setting.value || '[Заполнить]';
+        values.appendChild(value);
+        item.appendChild(values);
+
+        return item;
+    }
+
+    function createSettingsList(settings, detailed) {
+        var list = document.createElement('ul');
+
+        list.className = detailed
+            ? 'settings-list settings-list--detailed'
+            : 'settings-list';
+
+        settings.forEach(function (setting) {
+            list.appendChild(detailed
+                ? createSettingsItem(setting)
+                : createSettingsRow(setting));
+        });
+
+        return list;
+    }
+
+    // Группа настроек: например, отдельный файл конфига.
+    function createSettingsGroup(group) {
+        var section = document.createElement('section');
+        var head = document.createElement('div');
+        var title = document.createElement('h3');
+        var titleText = document.createElement('span');
+
+        section.className = 'settings-group';
+        head.className = 'settings-group__head';
+        title.className = 'settings-group__title';
+        titleText.textContent = group.title || '';
+
+        if (group.file) {
+            titleText.className = 'settings-group__file';
+        }
+
+        title.appendChild(titleText);
+        head.appendChild(title);
+        section.appendChild(head);
+
+        var items = Array.isArray(group.items) ? group.items : [];
+
+        if (items.length > 0) {
+            section.appendChild(createSettingsList(items, true));
+        }
+
+        return section;
+    }
+
+    function renderSettings(gameData) {
+        var settingsBlock = document.querySelector('[data-role="settings-block"]');
+        var settingsList = document.querySelector('[data-role="settings-list"]');
+        var groups = Array.isArray(gameData.settingsGroups) ? gameData.settingsGroups : [];
+        var flatSettings = Array.isArray(gameData.settings) ? gameData.settings : [];
+        var hasSettings = groups.length > 0 || flatSettings.length > 0;
+
+        if (settingsBlock) {
+            settingsBlock.hidden = !hasSettings;
+        }
+
+        if (!settingsList) {
+            return;
+        }
+
+        settingsList.textContent = '';
+
+        if (!hasSettings) {
+            return;
+        }
+
+        groups.forEach(function (group) {
+            settingsList.appendChild(createSettingsGroup(group));
+        });
+
+        if (flatSettings.length > 0) {
+            settingsList.appendChild(createSettingsList(flatSettings, false));
+        }
+    }
+
     function renderGamePage() {
         var page = document.querySelector('[data-role="game-page"]');
 
@@ -241,36 +395,7 @@
             settingsTitleEl.textContent = game.settingsTitle || 'Настройки';
         }
 
-        var settingsBlock = page.querySelector('[data-role="settings-block"]');
-        var settingsList = page.querySelector('[data-role="settings-list"]');
-
-        if (settingsBlock && settingsList) {
-            var settings = game.settings || [];
-
-            settingsBlock.hidden = settings.length === 0;
-            settingsList.textContent = '';
-
-            settings.forEach(function (setting) {
-                var item = document.createElement('li');
-                var label = document.createElement('span');
-                var value = document.createElement('span');
-
-                item.className = 'settings-row';
-                label.className = 'settings-row__label';
-                value.className = 'settings-row__value';
-
-                label.textContent = setting.label;
-                value.textContent = setting.value || '[Заполнить]';
-
-                if (!setting.value) {
-                    value.classList.add('placeholder');
-                }
-
-                item.appendChild(label);
-                item.appendChild(value);
-                settingsList.appendChild(item);
-            });
-        }
+        renderSettings(game);
 
         renderFundWidget(page, game);
         page.hidden = false;

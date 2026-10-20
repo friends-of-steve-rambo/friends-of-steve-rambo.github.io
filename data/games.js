@@ -14,7 +14,12 @@
 //   status       — текст и модификатор бейджа (dev, live, planned, closed);
 //   description  — описание; пустая строка означает заглушку;
 //   settingsTitle — заголовок блока настроек;
-//   settings     — список настроек: { label, value };
+//   settingsGroups — настройки по группам (например, по файлам):
+//                    { title, file, items: [...] };
+//                    file: true — показать title как имя файла;
+//                    элемент: { key, label, value, default };
+//   settings     — простой плоский список: { label, value };
+//                  используется, если settingsGroups не задан;
 //
 // Сборы по месяцам здесь не хранятся: донаты, цели и копилка
 // лежат в data/donations.js.
@@ -31,12 +36,43 @@ window.GAMES = [
             modifier: 'dev'
         },
         description: 'Че ранарод погнали Nah00y: build 42',
-        settingsTitle: 'Важные решения и настройки',
-        settings: [
-            { label: 'Настройки', value: 'PvP - вкл; респавн зомби - вкл, редкий' },
-            { label: 'Моды', value: '-'},
-            { label: 'Самописные моды', value: 'Survivor Metrics' }
-        ]
+        settingsTitle: 'Настройки сервера',
+        settingsGroups: [
+            {
+                title: 'servertest.ini',
+                file: true,
+                items: [
+                    // Доступ к серверу
+                    { key: 'Password', label: 'пароль на вход', value: '(***)', default: '—' },
+                    // Убежища игроков
+                    { key: 'PlayerSafehouse', label: 'личные убежища', value: 'true', default: 'false' },
+                    { key: 'SafehouseAllowRespawn', label: 'возрождение в убежище', value: 'true', default: 'false' }
+                ]
+            },
+            {
+                title: 'servertest_SandboxVars.lua',
+                file: true,
+                items: [
+                    // Зомби: заражение, скорость, пополнение популяции
+                    { key: 'ZombieLore.Transmission', label: 'передача вируса', value: '2 (Saliva Only)', default: '1 (Blood and Saliva)' },
+                    { key: 'ZombieLore.SprinterPercentage', label: 'доля бегунов', value: '0.5 (0,5 %)', default: '0' },
+                    { key: 'ZombieRespawn', label: 'респавн зомби', value: '3 (Low)', default: '4 (None)' },
+                    // Мир: длина суток и отключение ресурсов
+                    { key: 'DayLength', label: 'длина игрового дня', value: '6 (3 часа)', default: '4 (1 ч 30 мин)' },
+                    { key: 'WaterShut', label: 'отключение воды', value: '3 (0–2 месяца)', default: '2 (0–30 дней)' },
+                    { key: 'ElecShut', label: 'отключение электричества', value: '3 (14 дней–2 месяца)', default: '2 (14–30 дней)' },
+                    // Прокачка персонажа
+                    { key: 'MultiplierConfig.Global', label: 'скорость прокачки навыков', value: '×3', default: '×1.0' }
+                ]
+            },
+            {
+                title: 'Моды',
+                items: [
+                    { label: 'Сторонние моды', value: '—' },
+                    { label: 'Самописные моды', value: 'Survivor Metrics' }
+                ]
+            }
+        ],
     },
 
     {

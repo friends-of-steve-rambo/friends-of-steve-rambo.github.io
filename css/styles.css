@@ -827,6 +827,97 @@ body[data-page="game"] .site-header .site-nav {
     color: var(--text-color);
 }
 
+/* Настройки: группы по файлам конфига */
+.settings-group + .settings-group {
+    margin-top: 22px;
+}
+
+.settings-group__head {
+    margin-bottom: 8px;
+}
+
+.settings-group__title {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.settings-group__file {
+    padding: 2px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--card-bg-alt);
+    color: var(--text-color);
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.85rem;
+}
+
+/* Строка настройки: ключ (подпись) и «дефолт → новое значение» */
+.settings-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2px 16px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0;
+}
+
+.settings-item:nth-child(odd) {
+    background: var(--surface-hover);
+}
+
+.settings-item__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+}
+
+.settings-item__key {
+    color: var(--text-color);
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.86rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.settings-item__label {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+.settings-item__values {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    justify-self: end;
+    gap: 6px;
+}
+
+.settings-item__default {
+    color: var(--text-muted);
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.78rem;
+}
+
+.settings-item__arrow {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.settings-item__value {
+    padding: 1px 9px;
+    border: 1px solid rgba(255, 70, 85, 0.35);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--text-color);
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
 ul {
     padding-left: 20px;
     color: var(--text-secondary);
@@ -959,6 +1050,16 @@ li {
     .settings-row {
         grid-template-columns: 1fr;
         gap: 0;
+    }
+
+    .settings-item {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 3px;
+    }
+
+    .settings-item__values {
+        justify-self: start;
+        justify-content: flex-start;
     }
 
     .month-panel {
