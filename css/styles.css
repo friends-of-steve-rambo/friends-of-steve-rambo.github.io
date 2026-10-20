@@ -225,6 +225,20 @@ body[data-page="game"] .site-header .site-nav {
     align-self: flex-start;
 }
 
+/* Общий топ донатеров на главной */
+.home-top {
+    margin-top: 32px;
+    margin-bottom: 0;
+}
+
+.home-top .section-head {
+    margin-bottom: 8px;
+}
+
+.home-top > .note {
+    margin: 0 0 14px;
+}
+
 .button {
     display: inline-block;
     padding: 10px 18px;

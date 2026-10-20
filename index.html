@@ -19,6 +19,15 @@
     <main>
         <section class="game-grid" data-role="game-grid" aria-label="Список игровых серверов"></section>
 
+        <!-- Общий топ донатеров: сумма по всем играм и месяцам -->
+        <section class="server-card home-top" data-role="global-top" aria-labelledby="home-donators-title" hidden>
+            <div class="section-head">
+                <h2 class="section-title" id="home-donators-title">Топ донатеров за всё время</h2>
+            </div>
+            <p class="note">Сумма по всем серверам и месяцам.</p>
+            <div class="donators-list" data-role="global-donators"></div>
+        </section>
+
         <noscript>
             <p class="note">Для отображения списка игр включите JavaScript.</p>
         </noscript>
@@ -38,6 +47,7 @@
 </template>
 
 <script src="data/games.js" defer></script>
+<script src="data/donations.js" defer></script>
 <script src="js/footer.js" defer></script>
 <script src="js/main.js" defer></script>
 </body>

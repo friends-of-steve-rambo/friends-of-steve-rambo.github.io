@@ -5,7 +5,8 @@
 //   - строит навигацию по списку игр;
 //   - рисует карточки игр на главной;
 //   - заполняет общий шаблон game.html данными игры;
-//   - отрисовывает сборы по месяцам и списки донатеров.
+//   - отрисовывает сборы по месяцам;
+//   - показывает общий топ донатеров на главной.
 // ============================================================
 
 (function () {
@@ -430,25 +431,43 @@
         return months.length - 1;
     }
 
-    function aggregateDonators(months) {
+    // Топ за всё время: складываем донаты по всем играм и месяцам.
+    // В сумму входит весь взнос, включая часть, ушедшую в копилку.
+    function getAllTimeDonators() {
         var byName = new Map();
 
-        months.forEach(function (month) {
-            (month.donators || []).forEach(function (donator) {
-                var name = String(donator.name || '').trim() || 'Без имени';
-                var amount = toNumber(donator.amount);
-                var existing = byName.get(name);
+        games.forEach(function (game) {
+            getMonths(game).forEach(function (month) {
+                (month.donators || []).forEach(function (donator) {
+                    var name = String(donator.name || '').trim() || 'Без имени';
+                    var amount = toNumber(donator.amount);
+                    var entry = byName.get(name);
 
-                if (existing) {
-                    existing.amount += amount;
-                } else {
-                    byName.set(name, { name: name, amount: amount });
-                }
+                    if (!entry) {
+                        entry = { name: name, amount: 0, byGame: new Map() };
+                        byName.set(name, entry);
+                    }
+
+                    entry.amount = round2(entry.amount + amount);
+                    entry.byGame.set(
+                        game.name,
+                        round2((entry.byGame.get(game.name) || 0) + amount)
+                    );
+                });
             });
         });
 
-        return Array.from(byName.values()).sort(function (a, b) {
-            return b.amount - a.amount;
+        return Array.from(byName.values()).map(function (entry) {
+            return {
+                name: entry.name,
+                amount: entry.amount,
+                // Расшифровка, сколько человек внёс по каждой игре.
+                note: Array.from(entry.byGame, function (pair) {
+                    return pair[0] + ' ' + formatMoney(pair[1]) + ' руб.';
+                }).join(' · ')
+            };
+        }).sort(function (a, b) {
+            return b.amount - a.amount || a.name.localeCompare(b.name, 'ru');
         });
     }
 
@@ -566,11 +585,13 @@
                     {
                         position: start + index + 1,
                         share: maxAmount > 0 ? (credited / maxAmount) * 100 : 0,
-                        // Если часть доната ушла в копилку, показываем,
-                        // сколько человек задонатил за месяц на самом деле.
-                        note: donated !== credited
+                        // Готовую подпись из данных (например, разбивку
+                        // по играм в общем топе) оставляем как есть.
+                        // Иначе, если часть доната ушла в копилку,
+                        // показываем, сколько человек внёс за месяц.
+                        note: donator.note || (donated !== credited
                             ? 'задоначено ' + formatMoney(donated) + ' руб.'
-                            : ''
+                            : '')
                     }
                 ));
             });
@@ -836,13 +857,8 @@
     function renderFundWidget(widget, gameData) {
         var months = getMonths(gameData);
         var hasMonths = months.length > 0;
-        var donatorsBlock = widget.querySelector('[data-role="donators-block"]');
         var monthlyBlock = widget.querySelector('[data-role="monthly-block"]');
         var emptyEl = widget.querySelector('[data-role="fund-empty"]');
-
-        if (donatorsBlock) {
-            donatorsBlock.hidden = !hasMonths;
-        }
 
         if (monthlyBlock) {
             monthlyBlock.hidden = !hasMonths;
@@ -856,12 +872,32 @@
             return;
         }
 
-        renderDonators(
-            widget.querySelector('[data-role="total-donators"]'),
-            aggregateDonators(months)
-        );
-
         renderMonths(widget, months);
+    }
+
+    // --------------------------------------------------------
+    // Главная страница: общий топ донатеров
+    // --------------------------------------------------------
+
+    function renderHomeTop() {
+        var section = document.querySelector('[data-role="global-top"]');
+        var container = document.querySelector('[data-role="global-donators"]');
+
+        if (!section || !container) {
+            return;
+        }
+
+        var donators = getAllTimeDonators();
+
+        // Нет ни одного доната — не показываем пустой блок.
+        section.hidden = donators.length === 0;
+
+        if (donators.length === 0) {
+            container.textContent = '';
+            return;
+        }
+
+        renderDonators(container, donators);
     }
 
     // --------------------------------------------------------
@@ -870,6 +906,7 @@
 
     renderNav();
     renderGameCards();
+    renderHomeTop();
     renderGamePage();
 
     // Ссылки вида game.html#game=<id> меняют только хеш, поэтому
