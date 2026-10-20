@@ -54,6 +54,8 @@ window.GAMES = [
                 items: [
                     // Доступ к серверу
                     { key: 'Password', label: 'пароль на вход', value: '(***)', default: '—' },
+                    //PVP настройки
+                    { key: 'SafetySystem', label: 'пвп без подготовки', value: 'false', default: 'true'},
                     // Убежища игроков
                     { key: 'PlayerSafehouse', label: 'личные убежища', value: 'true', default: 'false' },
                     { key: 'SafehouseAllowRespawn', label: 'возрождение в убежище', value: 'true', default: 'false' }
