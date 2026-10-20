@@ -57,8 +57,7 @@ window.GAMES = [
                     { key: 'ZombieLore.Transmission', label: 'передача вируса', value: '2 (Saliva Only)', default: '1 (Blood and Saliva)' },
                     { key: 'ZombieLore.SprinterPercentage', label: 'доля бегунов', value: '0.5 (0,5 %)', default: '0' },
                     { key: 'ZombieRespawn', label: 'респавн зомби', value: '3 (Low)', default: '4 (None)' },
-                    // Мир: длина суток и отключение ресурсов
-                    { key: 'DayLength', label: 'длина игрового дня', value: '6 (3 часа)', default: '4 (1 ч 30 мин)' },
+                    // Мир: отключение ресурсов
                     { key: 'WaterShut', label: 'отключение воды', value: '3 (0–2 месяца)', default: '2 (0–30 дней)' },
                     { key: 'ElecShut', label: 'отключение электричества', value: '3 (14 дней–2 месяца)', default: '2 (14–30 дней)' },
                     // Прокачка персонажа
