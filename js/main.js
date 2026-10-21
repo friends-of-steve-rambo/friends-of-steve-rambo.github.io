@@ -21,6 +21,8 @@
         year: 'numeric'
     });
     var DONATORS_PER_PAGE = 10;
+    // Делитель бонуса донатера: вес = 1 + (коэф. × проголосовавших ÷ 3).
+    var VOTE_BONUS_DIVISOR = 3;
 
     // --------------------------------------------------------
     // Общие помощники
@@ -822,7 +824,8 @@
         label.textContent = 'Вес голоса';
 
         expr.className = 'vote-formula__expr';
-        expr.textContent = '= 1 + (коэф × количество проголосовавших)';
+        expr.textContent = '= 1 + (коэф × количество проголосовавших ÷ ' +
+            VOTE_BONUS_DIVISOR + ')';
 
         arrow.className = 'vote-formula__arrow';
         arrow.setAttribute('aria-hidden', 'true');
@@ -1606,16 +1609,17 @@
 
                 var coefficient = toNumber(voter.coefficient);
                 // Формула из правил: вес = 1 + (коэф. × количество
-                // проголосовавших). Поэтому при добавлении человека
+                // проголосовавших ÷ 3). Поэтому при добавлении человека
                 // пересчитываются веса всех донатеров.
-                var weight = 1 + coefficient * participantCount;
+                var weight = 1 + coefficient * participantCount / VOTE_BONUS_DIVISOR;
 
                 if (weightEl) {
                     weightEl.textContent = formatMoney(weight);
                     weightEl.classList.remove('vote-row__weight--muted');
                     weightEl.title = coefficient > 0
-                        ? '1 + ' + formatMoney(coefficient) + ' × ' +
-                            participantCount + ' = ' + formatMoney(weight)
+                        ? '1 + (' + formatMoney(coefficient) + ' × ' +
+                            participantCount + ') / ' + VOTE_BONUS_DIVISOR +
+                            ' = ' + formatMoney(weight)
                         : 'Вес голоса: 1';
                 }
 
@@ -1674,10 +1678,12 @@
 
             if (formulaNoteEl) {
                 formulaNoteEl.textContent = participantCount > 0
-                    ? 'Вес голоса = 1 + (коэф. × количество проголосовавших). ' +
+                    ? 'Вес голоса = 1 + (коэф. × количество проголосовавших ÷ ' +
+                        VOTE_BONUS_DIVISOR + '). ' +
                         'Сейчас проголосовавших: ' + participantCount +
                         '. В расчёте вес не округляется.'
-                    : 'Вес голоса = 1 + (коэф. × количество проголосовавших).';
+                    : 'Вес голоса = 1 + (коэф. × количество проголосовавших ÷ ' +
+                        VOTE_BONUS_DIVISOR + ').';
             }
         }
 
