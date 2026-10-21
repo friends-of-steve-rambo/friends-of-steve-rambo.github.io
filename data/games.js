@@ -54,6 +54,8 @@ window.GAMES = [
                 items: [
                     // Доступ к серверу
                     { key: 'Password', label: 'пароль на вход', value: '(***)', default: '—' },
+                    // Ослабление античита
+                    { key: 'AntiCheat*', label: 'Ослабление античита', value: '3', default: '2' },
                     //PVP настройки
                     { key: 'SafetySystem', label: 'пвп без подготовки', value: 'false', default: 'true'},
                     // Убежища игроков
@@ -80,12 +82,12 @@ window.GAMES = [
         ],
         modsTitle: 'Моды',
         mods: [
-            {
-                name: 'Survivor Metrics',
-                description: 'считает время онлайна и другую статистику, а по ней подстраивает сложность',
-                badge: 'Самописный',
-                badgeModifier: 'custom'
-            }
+            // {
+            //     name: 'Survivor Metrics',
+            //     description: 'считает время онлайна и другую статистику, а по ней подстраивает сложность',
+            //     badge: 'Самописный',
+            //     badgeModifier: 'custom'
+            // }
         ]
     },
 
