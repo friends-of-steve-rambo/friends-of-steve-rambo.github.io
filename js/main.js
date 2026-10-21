@@ -790,7 +790,7 @@
 
                 ratio.className = 'donator__ratio';
                 ratio.textContent = 'коэф. ' + formatMoney(options.ratio);
-                ratio.title = 'Коэффициент: учтённый донат / общая сумма сбора';
+                ratio.title = 'Коэффициент: учтённый донат / цель сбора';
                 meta.appendChild(ratio);
             }
 
@@ -915,8 +915,7 @@
                             ? 'задоначено ' + formatMoney(donated) + ' руб.'
                             : ''),
                         // Коэффициент для формулы силы голоса:
-                        // учтённый донат / общая сумма сбора
-                        // (см. rules.html).
+                        // учтённый донат / цель сбора (см. rules.html).
                         ratio: ratio > 0 ? ratio : 0
                     }
                 ));
@@ -1211,6 +1210,548 @@
     }
 
     // --------------------------------------------------------
+    // Калькулятор голосования (rules.html)
+    // --------------------------------------------------------
+
+    function normalizeVoterName(value) {
+        return String(value == null ? '' : value).trim().replace(/\s+/g, ' ');
+    }
+
+    function getVoterNameKey(name) {
+        return normalizeVoterName(name).toLowerCase();
+    }
+
+    function setupVoteCalculator() {
+        var root = document.querySelector('[data-role="vote-calculator"]');
+
+        if (!root) {
+            return;
+        }
+
+        var gameSelect = root.querySelector('[data-role="vote-game"]');
+        var monthField = root.querySelector('[data-role="vote-month-field"]');
+        var monthSelect = root.querySelector('[data-role="vote-month"]');
+        var sourceEl = root.querySelector('[data-role="vote-source"]');
+        var form = root.querySelector('[data-role="vote-add-form"]');
+        var nameInput = root.querySelector('[data-role="vote-name"]');
+        var formVoteSelect = root.querySelector('[data-role="vote-choice"]');
+        var errorEl = root.querySelector('[data-role="vote-error"]');
+        var tableWrap = root.querySelector('[data-role="vote-table-wrap"]');
+        var rowsEl = root.querySelector('[data-role="vote-rows"]');
+        var emptyEl = root.querySelector('[data-role="vote-empty"]');
+        var resultsEl = root.querySelector('[data-role="vote-results"]');
+        var forValueEl = root.querySelector('[data-role="vote-for"]');
+        var forCountEl = root.querySelector('[data-role="vote-for-count"]');
+        var againstValueEl = root.querySelector('[data-role="vote-against"]');
+        var againstCountEl = root.querySelector('[data-role="vote-against-count"]');
+        var participantsEl = root.querySelector('[data-role="vote-participants"]');
+        var totalEl = root.querySelector('[data-role="vote-total"]');
+        var verdictEl = root.querySelector('[data-role="vote-verdict"]');
+        var formulaNoteEl = root.querySelector('[data-role="vote-formula-note"]');
+
+        if (!gameSelect || !monthSelect || !form || !nameInput || !formVoteSelect || !rowsEl) {
+            return;
+        }
+
+        var state = {
+            gameId: '',
+            months: [],
+            monthIndex: -1,
+            donors: [],
+            manual: [],
+            nextId: 1
+        };
+        var weightCells = new Map();
+
+        // В списке игр — все серверы. Если у игры нет сборов,
+        // донатеров просто не будет; ручной режим останется доступен.
+        games.forEach(function (game) {
+            var option = document.createElement('option');
+
+            option.value = game.id;
+            option.textContent = (game.emoji ? game.emoji + ' ' : '') + game.name;
+            gameSelect.appendChild(option);
+        });
+
+        function hideError() {
+            if (!errorEl) {
+                return;
+            }
+
+            errorEl.textContent = '';
+            errorEl.hidden = true;
+        }
+
+        function showError(message) {
+            if (!errorEl) {
+                return;
+            }
+
+            errorEl.textContent = message;
+            errorEl.hidden = false;
+        }
+
+        function findVoter(name) {
+            var key = getVoterNameKey(name);
+            var voters = state.donors.concat(state.manual);
+
+            for (var i = 0; i < voters.length; i++) {
+                if (getVoterNameKey(voters[i].name) === key) {
+                    return voters[i];
+                }
+            }
+
+            return null;
+        }
+
+        function getSelectedMonth() {
+            return state.months[state.monthIndex] || null;
+        }
+
+        // Донатеры выбранного месяца. Если человек уже добавлен вручную,
+        // его голос переносится в строку донатера, а ручная строка убирается.
+        function buildDonorVoters(month) {
+            var donors = [];
+
+            if (!month) {
+                return donors;
+            }
+
+            var manualByName = new Map();
+            var matchedManual = [];
+
+            state.manual.forEach(function (voter) {
+                manualByName.set(getVoterNameKey(voter.name), voter);
+            });
+
+            (month.donators || []).forEach(function (donator) {
+                var name = normalizeVoterName(donator.name);
+                var manual = manualByName.get(getVoterNameKey(name));
+
+                if (manual) {
+                    matchedManual.push(manual);
+                }
+
+                donors.push({
+                    id: 'donor-' + state.nextId++,
+                    name: name,
+                    vote: manual ? manual.vote : '',
+                    // Коэффициент — это учтённый донат / цель сбора.
+                    // Цель месяца и есть стоимость хостинга.
+                    coefficient: month.target > 0
+                        ? toNumber(donator.credited) / month.target
+                        : 0,
+                    credited: toNumber(donator.credited),
+                    amount: toNumber(donator.amount),
+                    target: toNumber(month.target),
+                    source: 'donor'
+                });
+            });
+
+            if (matchedManual.length > 0) {
+                state.manual = state.manual.filter(function (voter) {
+                    return matchedManual.indexOf(voter) === -1;
+                });
+            }
+
+            return donors;
+        }
+
+        function updateSource(month) {
+            if (!sourceEl) {
+                return;
+            }
+
+            sourceEl.hidden = false;
+
+            if (!state.gameId) {
+                sourceEl.textContent = 'Ручной режим: донатеры не подгружены, ' +
+                    'у каждого голосующего базовый вес 1.';
+                return;
+            }
+
+            var game = getGameById(state.gameId);
+
+            if (!month) {
+                sourceEl.textContent = 'У игры ' + (game ? game.name : '') +
+                    ' пока нет сборов, поэтому донатеров для загрузки нет.';
+                return;
+            }
+
+            var parts = ['Сбор на ' + formatMonth(month).toLowerCase()];
+
+            if (month.target > 0) {
+                parts.push('цель ' + formatMoney(month.target) + ' руб.');
+                parts.push('коэф. = зачтённый донат / цель');
+            } else {
+                parts.push('цель не задана, поэтому коэф. равен 0');
+            }
+
+            if (month.donators.length === 0) {
+                parts.push('донатеров нет');
+            }
+
+            sourceEl.textContent = parts.join(' · ') + '.';
+        }
+
+        function loadSelectedMonth() {
+            var month = getSelectedMonth();
+
+            state.donors = buildDonorVoters(month);
+            updateSource(month);
+        }
+
+        function fillMonthSelect() {
+            if (!monthSelect) {
+                return;
+            }
+
+            monthSelect.textContent = '';
+
+            state.months.forEach(function (month, index) {
+                var option = document.createElement('option');
+
+                option.value = String(index);
+                option.textContent = formatMonth(month);
+                monthSelect.appendChild(option);
+            });
+
+            if (monthField) {
+                monthField.hidden = state.months.length <= 1;
+            }
+
+            if (state.monthIndex >= 0) {
+                monthSelect.value = String(state.monthIndex);
+            }
+        }
+
+        function applyVoteSelectStyle(select, vote) {
+            select.classList.remove('vote-select--for', 'vote-select--against');
+
+            if (vote === 'for') {
+                select.classList.add('vote-select--for');
+            } else if (vote === 'against') {
+                select.classList.add('vote-select--against');
+            }
+        }
+
+        function createVoteRow(voter) {
+            var row = document.createElement('tr');
+            var nameCell = document.createElement('td');
+            var nameEl = document.createElement('span');
+
+            row.className = 'vote-row';
+
+            nameEl.className = 'vote-row__name';
+            nameEl.textContent = voter.name;
+            nameCell.appendChild(nameEl);
+
+            if (voter.source === 'donor') {
+                var metaEl = document.createElement('span');
+                var meta = 'донат ' + formatMoney(voter.amount) + ' руб.';
+
+                if (voter.credited !== voter.amount) {
+                    meta += ' · в зачёт ' + formatMoney(voter.credited) + ' руб.';
+                }
+
+                metaEl.className = 'vote-row__meta';
+                metaEl.textContent = meta;
+                nameCell.appendChild(metaEl);
+            }
+
+            row.appendChild(nameCell);
+
+            var coefficientCell = document.createElement('td');
+            var coefficientEl = document.createElement('span');
+
+            coefficientEl.className = 'vote-row__coef';
+
+            if (voter.source === 'donor') {
+                coefficientEl.textContent = formatMoney(voter.coefficient);
+                coefficientEl.title = voter.target > 0
+                    ? 'Коэффициент: зачтённый донат / цель сбора — ' +
+                        formatMoney(voter.credited) + ' / ' + formatMoney(voter.target)
+                    : 'Цель сбора не задана, коэффициент равен 0';
+            } else {
+                coefficientEl.textContent = '—';
+                coefficientEl.classList.add('vote-row__coef--muted');
+                coefficientEl.title = 'У голосующего без доната коэффициент 0';
+            }
+
+            coefficientCell.appendChild(coefficientEl);
+            row.appendChild(coefficientCell);
+
+            var voteCell = document.createElement('td');
+            var select = document.createElement('select');
+
+            select.className = 'vote-select';
+            select.setAttribute('aria-label', 'Голос: ' + voter.name);
+
+            [
+                { value: '', label: 'Не голосовал' },
+                { value: 'for', label: 'За' },
+                { value: 'against', label: 'Против' }
+            ].forEach(function (optionData) {
+                var option = document.createElement('option');
+
+                option.value = optionData.value;
+                option.textContent = optionData.label;
+                select.appendChild(option);
+            });
+
+            select.value = voter.vote || '';
+            applyVoteSelectStyle(select, voter.vote);
+
+            select.addEventListener('change', function () {
+                voter.vote = select.value === 'for' || select.value === 'against'
+                    ? select.value
+                    : '';
+                applyVoteSelectStyle(select, voter.vote);
+                updateResults();
+            });
+
+            voteCell.appendChild(select);
+            row.appendChild(voteCell);
+
+            var weightCell = document.createElement('td');
+            var weightEl = document.createElement('span');
+
+            weightEl.className = 'vote-row__weight';
+            weightEl.textContent = '—';
+            weightCell.appendChild(weightEl);
+            weightCells.set(voter.id, weightEl);
+            row.appendChild(weightCell);
+
+            var actionCell = document.createElement('td');
+
+            // Убрать можно только строку, добавленную вручную.
+            // Донатеры всегда остаются в таблице; если человек не голосовал,
+            // у его строки просто выбран вариант «Не голосовал».
+            if (voter.source === 'manual') {
+                var removeButton = document.createElement('button');
+
+                removeButton.type = 'button';
+                removeButton.className = 'vote-remove';
+                removeButton.textContent = '×';
+                removeButton.title = 'Убрать из таблицы';
+                removeButton.setAttribute('aria-label', 'Убрать ' + voter.name + ' из таблицы');
+
+                removeButton.addEventListener('click', function () {
+                    state.manual = state.manual.filter(function (item) {
+                        return item !== voter;
+                    });
+
+                    renderRows();
+                    updateResults();
+                });
+
+                actionCell.appendChild(removeButton);
+            }
+
+            row.appendChild(actionCell);
+
+            return row;
+        }
+
+        function renderRows() {
+            var voters = state.donors.concat(state.manual);
+            var hasRows = voters.length > 0;
+
+            rowsEl.textContent = '';
+            weightCells = new Map();
+
+            if (tableWrap) {
+                tableWrap.hidden = !hasRows;
+            }
+
+            if (emptyEl) {
+                emptyEl.hidden = hasRows;
+            }
+
+            if (resultsEl) {
+                resultsEl.hidden = !hasRows;
+            }
+
+            voters.forEach(function (voter) {
+                rowsEl.appendChild(createVoteRow(voter));
+            });
+        }
+
+        function updateResults() {
+            var voters = state.donors.concat(state.manual);
+            var participantCount = 0;
+            var forWeight = 0;
+            var againstWeight = 0;
+            var forCount = 0;
+            var againstCount = 0;
+
+            voters.forEach(function (voter) {
+                if (voter.vote === 'for' || voter.vote === 'against') {
+                    participantCount += 1;
+                }
+            });
+
+            voters.forEach(function (voter) {
+                var weightEl = weightCells.get(voter.id);
+
+                if (voter.vote !== 'for' && voter.vote !== 'against') {
+                    if (weightEl) {
+                        weightEl.textContent = '—';
+                        weightEl.classList.add('vote-row__weight--muted');
+                        weightEl.removeAttribute('title');
+                    }
+
+                    return;
+                }
+
+                var coefficient = toNumber(voter.coefficient);
+                // Формула из правил: вес = 1 + (коэф. × количество
+                // проголосовавших). Поэтому при добавлении человека
+                // пересчитываются веса всех донатеров.
+                var weight = 1 + coefficient * participantCount;
+
+                if (weightEl) {
+                    weightEl.textContent = formatMoney(weight);
+                    weightEl.classList.remove('vote-row__weight--muted');
+                    weightEl.title = coefficient > 0
+                        ? '1 + ' + formatMoney(coefficient) + ' × ' +
+                            participantCount + ' = ' + formatMoney(weight)
+                        : 'Вес голоса: 1';
+                }
+
+                if (voter.vote === 'for') {
+                    forWeight += weight;
+                    forCount += 1;
+                } else {
+                    againstWeight += weight;
+                    againstCount += 1;
+                }
+            });
+
+            if (forValueEl) {
+                forValueEl.textContent = formatMoney(forWeight);
+            }
+
+            if (forCountEl) {
+                forCountEl.textContent = String(forCount);
+            }
+
+            if (againstValueEl) {
+                againstValueEl.textContent = formatMoney(againstWeight);
+            }
+
+            if (againstCountEl) {
+                againstCountEl.textContent = String(againstCount);
+            }
+
+            if (participantsEl) {
+                participantsEl.textContent = String(participantCount);
+            }
+
+            if (totalEl) {
+                totalEl.textContent = String(voters.length);
+            }
+
+            if (verdictEl) {
+                verdictEl.className = 'vote-verdict';
+
+                if (participantCount === 0) {
+                    verdictEl.textContent = 'Пока никто не голосовал.';
+                } else if (Math.abs(forWeight - againstWeight) < 1e-9) {
+                    verdictEl.textContent = 'Ничья: «За» — ' + formatMoney(forWeight) +
+                        ', «Против» — ' + formatMoney(againstWeight) + '.';
+                    verdictEl.classList.add('vote-verdict--tie');
+                } else if (forWeight > againstWeight) {
+                    verdictEl.textContent = 'Побеждает «За»: ' + formatMoney(forWeight) +
+                        ' против ' + formatMoney(againstWeight) + '.';
+                    verdictEl.classList.add('vote-verdict--for');
+                } else {
+                    verdictEl.textContent = 'Побеждает «Против»: ' + formatMoney(againstWeight) +
+                        ' против ' + formatMoney(forWeight) + '.';
+                    verdictEl.classList.add('vote-verdict--against');
+                }
+            }
+
+            if (formulaNoteEl) {
+                formulaNoteEl.textContent = participantCount > 0
+                    ? 'Вес голоса = 1 + (коэф. × количество проголосовавших). ' +
+                        'Сейчас проголосовавших: ' + participantCount +
+                        '. В расчёте вес не округляется.'
+                    : 'Вес голоса = 1 + (коэф. × количество проголосовавших).';
+            }
+        }
+
+        function render() {
+            renderRows();
+            updateResults();
+        }
+
+        function loadGame(gameId) {
+            state.gameId = gameId;
+            state.months = gameId ? getMonths(getGameById(gameId)) : [];
+            state.monthIndex = state.months.length > 0 ? pickMonthIndex(state.months) : -1;
+
+            fillMonthSelect();
+            loadSelectedMonth();
+            render();
+        }
+
+        gameSelect.addEventListener('change', function () {
+            hideError();
+            loadGame(gameSelect.value);
+        });
+
+        monthSelect.addEventListener('change', function () {
+            var index = Number(monthSelect.value);
+
+            if (isNaN(index)) {
+                return;
+            }
+
+            state.monthIndex = index;
+            loadSelectedMonth();
+            render();
+        });
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var name = normalizeVoterName(nameInput.value);
+            var vote = formVoteSelect.value === 'against' ? 'against' : 'for';
+
+            if (!name) {
+                showError('Введите имя голосующего.');
+                nameInput.focus();
+                return;
+            }
+
+            if (findVoter(name)) {
+                showError('«' + name + '» уже есть в таблице.');
+                nameInput.focus();
+                nameInput.select();
+                return;
+            }
+
+            state.manual.push({
+                id: 'manual-' + state.nextId++,
+                name: name,
+                vote: vote,
+                coefficient: 0,
+                source: 'manual'
+            });
+
+            nameInput.value = '';
+            hideError();
+            render();
+            nameInput.focus();
+        });
+
+        nameInput.addEventListener('input', hideError);
+
+        loadGame('');
+    }
+
+    // --------------------------------------------------------
     // Главная страница: общий топ донатеров
     // --------------------------------------------------------
 
@@ -1244,6 +1785,7 @@
     renderHomeTop();
     renderGamePage();
     setupCollapsibleSections();
+    setupVoteCalculator();
 
     // Ссылки вида game.html#game=<id> меняют только хеш, поэтому
     // перерисовываем страницу и при его смене.

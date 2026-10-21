@@ -1315,11 +1315,472 @@ li {
 }
 
 /* ============================================================
+   Калькулятор голосования
+   ============================================================ */
+
+.vote-calculator {
+    margin-top: 18px;
+}
+
+.vote-calculator__settings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 16px;
+}
+
+.vote-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.vote-field--game {
+    flex: 0 1 320px;
+}
+
+.vote-field__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.vote-field__control {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 11px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--card-bg-alt);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.vote-field__control:hover {
+    border-color: var(--border-strong);
+}
+
+.vote-field__control:focus-visible {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Убираем системную стрелку и рисуем свою: так селект
+   выглядит одинаково в разных браузерах и не сливается с фоном. */
+select.vote-field__control,
+.vote-select {
+    padding-right: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23a9b0b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 10px 6px;
+    color-scheme: dark;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Цвета пунктов задаём явно: иначе в Windows текст
+   в раскрытом списке может оказаться белым на белом. */
+select.vote-field__control option,
+.vote-select option {
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+select.vote-field__control option:checked,
+.vote-select option:checked {
+    background: var(--border-color);
+    color: var(--text-color);
+}
+
+.vote-calculator__source {
+    margin: 10px 0 0;
+}
+
+.vote-add {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 150px auto;
+    align-items: end;
+    gap: 10px 12px;
+    margin: 16px 0;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--surface-hover);
+}
+
+.vote-add__button {
+    min-height: 40px;
+    padding: 8px 20px;
+    border: 0;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.vote-add__error {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #ff9b9b;
+    font-size: 0.85rem;
+}
+
+.vote-table-wrap {
+    margin-top: 0;
+}
+
+.vote-table {
+    min-width: 600px;
+}
+
+.vote-table th:nth-child(2),
+.vote-table th:nth-child(4) {
+    width: 110px;
+}
+
+.vote-table th:last-child,
+.vote-table td:last-child {
+    width: 44px;
+    text-align: center;
+}
+
+.vote-table td {
+    vertical-align: middle;
+}
+
+.vote-table tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.vote-table tbody tr:hover {
+    background: var(--surface-hover);
+}
+
+.vote-row__name {
+    display: block;
+    color: var(--text-color);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.vote-row__meta {
+    display: block;
+    margin-top: 1px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    overflow-wrap: anywhere;
+}
+
+.vote-row__coef,
+.vote-row__weight {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.vote-row__coef {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.vote-row__coef--muted,
+.vote-row__weight--muted {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.vote-row__weight {
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+.vote-select {
+    width: 100%;
+    max-width: 150px;
+    min-height: 34px;
+    padding: 4px 30px 4px 9px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--card-bg-alt);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.85rem;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.vote-select:hover {
+    border-color: var(--border-strong);
+}
+
+.vote-select:focus-visible {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.vote-select--for {
+    border-color: rgba(123, 216, 143, 0.4);
+    background-color: rgba(123, 216, 143, 0.1);
+}
+
+.vote-select--against {
+    border-color: rgba(255, 70, 85, 0.4);
+    background-color: rgba(255, 70, 85, 0.12);
+}
+
+.vote-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.vote-remove:hover {
+    border-color: rgba(255, 70, 85, 0.35);
+    background: var(--accent-soft);
+    color: #ff9b9b;
+}
+
+.vote-empty {
+    margin: 0;
+    padding: 18px;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.vote-results {
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--card-bg-alt);
+}
+
+.vote-results__title {
+    margin: 0 0 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.vote-results__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.vote-result {
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--surface-hover);
+}
+
+.vote-result--for {
+    border-color: rgba(123, 216, 143, 0.28);
+    background: rgba(123, 216, 143, 0.08);
+}
+
+.vote-result--against {
+    border-color: rgba(255, 70, 85, 0.3);
+    background: var(--accent-soft);
+}
+
+.vote-result__label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.vote-result--for .vote-result__label {
+    color: var(--success-color);
+}
+
+.vote-result--against .vote-result__label {
+    color: #ff9b9b;
+}
+
+.vote-result__value {
+    display: block;
+    margin: 2px 0;
+    color: var(--text-color);
+    font-size: 1.55rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.vote-result--for .vote-result__value {
+    color: #9fe8af;
+}
+
+.vote-result--against .vote-result__value {
+    color: #ff9b9b;
+}
+
+.vote-result__meta {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+
+.vote-turnout {
+    margin: 12px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.vote-turnout strong {
+    color: var(--text-color);
+}
+
+.vote-verdict {
+    margin: 10px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.vote-verdict--for {
+    color: #9fe8af;
+}
+
+.vote-verdict--against {
+    color: #ff9b9b;
+}
+
+.vote-verdict--tie {
+    color: #ffd166;
+}
+
+.vote-formula-note {
+    margin: 8px 0 0;
+}
+
+/* ============================================================
    Адаптивность и предпочтения пользователя
    ============================================================ */
 
+@media (max-width: 640px) {
+    .vote-add {
+        grid-template-columns: minmax(0, 1fr) minmax(120px, 0.6fr);
+    }
+
+    .vote-add__button {
+        grid-column: 1 / -1;
+    }
+}
+
 @media (max-width: 560px) {
     .fund-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .vote-calculator__settings {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vote-field--game {
+        flex-basis: auto;
+    }
+
+    .vote-add {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vote-add__button {
+        grid-column: auto;
+        width: 100%;
+    }
+
+    /* На узком экране таблица превращается в карточки:
+       имя сверху, ниже коэффициент, голос и вес. */
+    .vote-table {
+        display: block;
+        min-width: 0;
+    }
+
+    .vote-table thead {
+        display: none;
+    }
+
+    .vote-table tbody {
+        display: block;
+    }
+
+    .vote-table tr {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px 10px;
+        padding: 10px 44px 10px 10px;
+    }
+
+    .vote-table tr + tr {
+        border-top: 1px solid var(--border-color);
+    }
+
+    .vote-table td {
+        display: block;
+        padding: 0;
+        border: 0;
+    }
+
+    .vote-table td:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .vote-table td:nth-child(2)::before {
+        content: 'коэф. ';
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    .vote-table td:nth-child(4)::before {
+        content: 'вес ';
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    .vote-table td:nth-child(4) {
+        justify-self: end;
+    }
+
+    .vote-table td:last-child {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: auto;
+    }
+
+    .vote-select {
+        max-width: none;
+    }
+
+    .vote-results__grid {
         grid-template-columns: 1fr;
     }
 
