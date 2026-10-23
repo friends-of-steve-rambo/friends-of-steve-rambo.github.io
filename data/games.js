@@ -52,12 +52,12 @@ window.GAMES = [
                 title: 'servertest.ini',
                 file: true,
                 items: [
-                    // Доступ к серверу
-                    { key: 'Password', label: 'пароль на вход', value: '(***)', default: '—' },
-                    // Ослабление античита
+                    // Ослабление античита и проверок
                     { key: 'AntiCheat*', label: 'Ослабление античита', value: '3', default: '2' },
+                    { key: 'DoLuaChecksum', label: 'не сверять lua файлы', value: 'false', default: 'true' },
                     //PVP настройки
                     { key: 'SafetySystem', label: 'пвп без подготовки', value: 'false', default: 'true'},
+                    { key: 'AnnounceDeath', label: 'объявлять сметрти', value: 'true', default: 'false'},
                     // Убежища игроков
                     { key: 'PlayerSafehouse', label: 'личные убежища', value: 'true', default: 'false' },
                     { key: 'SafehouseAllowRespawn', label: 'возрождение в убежище', value: 'true', default: 'false' }
@@ -69,7 +69,7 @@ window.GAMES = [
                 items: [
                     // Зомби: заражение, скорость, пополнение популяции
                     { key: 'ZombieLore.Transmission', label: 'передача вируса', value: '2 (Saliva Only)', default: '1 (Blood and Saliva)' },
-                    { key: 'ZombieLore.SprinterPercentage', label: 'доля бегунов', value: '0.5 (0,5 %)', default: '0' },
+                    { key: 'ZombieLore.SprinterPercentage', label: 'процент бегунов', value: '1', default: '0' },
                     { key: 'ZombieRespawn', label: 'респавн зомби', value: '3 (Low)', default: '4 (None)' },
                     // Мир: отключение ресурсов
                     { key: 'WaterShut', label: 'отключение воды', value: '3 (0–2 месяца)', default: '2 (0–30 дней)' },
