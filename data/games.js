@@ -13,6 +13,8 @@
 //   emoji        — иконка перед названием;
 //   status       — текст и модификатор бейджа (dev, live, planned, closed);
 //   description  — описание; пустая строка означает заглушку;
+//   repo         — необязательная ссылка на репозиторий с кодом сервера:
+//                  { name, url }; добавляется ссылкой в конец description;
 //   hosting      — необязательная справка о хостинге:
 //                  { name, url }; url — ссылка на тариф, name — его название;
 //   settingsTitle — заголовок блока настроек;
@@ -38,10 +40,14 @@ window.GAMES = [
         serverTitle: 'Project Zomboid Server',
         emoji: '🧟',
         status: {
-            text: 'В разработке / Подготовка',
-            modifier: 'dev'
+            text: 'Работает',
+            modifier: 'live'
         },
         description: 'Че ранарод погнали Nah00y: build 42',
+        repo: {
+            name: 'Код сервера на GitHub',
+            url: 'https://github.com/friends-of-steve-rambo/zomboid-docker'
+        },
         hosting: {
             name: 'HVDS-8G',
             url: 'https://hosting-vds.com/vds-russia'

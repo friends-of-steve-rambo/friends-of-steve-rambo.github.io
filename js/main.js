@@ -469,6 +469,34 @@
         }
     }
 
+    // Описание игры. Если указан repo, в конец описания добавляется
+    // ссылка на репозиторий с кодом сервера.
+    function renderDescription(el, game) {
+        if (!game.description) {
+            el.textContent = '[Заполнить: краткое описание сервера]';
+            el.classList.add('placeholder');
+            return;
+        }
+
+        el.textContent = game.description;
+        el.classList.remove('placeholder');
+
+        var repo = game.repo;
+
+        if (!repo || !repo.url) {
+            return;
+        }
+
+        el.appendChild(document.createTextNode(' — '));
+
+        var link = document.createElement('a');
+        link.href = repo.url;
+        link.textContent = repo.name || 'Код сервера';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        el.appendChild(link);
+    }
+
     function renderGamePage() {
         var page = document.querySelector('[data-role="game-page"]');
 
@@ -497,13 +525,7 @@
         document.title = game.name + ' — Стив Рембо и его друзья';
 
         if (descriptionEl) {
-            if (game.description) {
-                descriptionEl.textContent = game.description;
-                descriptionEl.classList.remove('placeholder');
-            } else {
-                descriptionEl.textContent = '[Заполнить: краткое описание сервера]';
-                descriptionEl.classList.add('placeholder');
-            }
+            renderDescription(descriptionEl, game);
         }
 
         var statusEl = page.querySelector('[data-role="game-status"]');
@@ -627,6 +649,7 @@
         return {
             id: rawMonth.id != null ? String(rawMonth.id) : '',
             label: rawMonth.label ? String(rawMonth.label) : '',
+            closed: rawMonth.closed === true,
             collected: collected,
             target: target,
             donators: donators,
@@ -1036,6 +1059,7 @@
         var targetUnit = panel.querySelector('[data-role="month-target-unit"]');
         var pendingNote = panel.querySelector('[data-role="month-pending-note"]');
         var stateEl = panel.querySelector('[data-role="month-state"]');
+        var donateLink = panel.querySelector('[data-role="month-donate-link"]');
         var percentEl = panel.querySelector('[data-role="month-progress-percent"]');
         var piggyBlock = panel.querySelector('[data-role="month-piggy"]');
         var piggyTotalEl = panel.querySelector('[data-role="month-piggy-total"]');
@@ -1087,7 +1111,10 @@
                 var state = 'Сбор идёт';
                 var stateModifier = 'active';
 
-                if (!hasTarget) {
+                if (month.closed) {
+                    state = 'Сбор закрыт';
+                    stateModifier = 'closed';
+                } else if (!hasTarget) {
                     state = 'Цель не задана';
                     stateModifier = 'idle';
                 } else if (safeCollected >= safeTarget) {
@@ -1097,6 +1124,11 @@
 
                 stateEl.textContent = state;
                 stateEl.className = 'collect-state collect-state--' + stateModifier;
+            }
+
+            // Если сбор закрыт, призыв к донату больше не показываем.
+            if (donateLink) {
+                donateLink.hidden = Boolean(month.closed);
             }
 
             renderProgress(progressBar, progressFill, percentEl, safeCollected, safeTarget);

@@ -675,7 +675,7 @@ body[data-page="game"] .site-header .site-nav {
     color: var(--text-secondary);
 }
 
-/* Состояние сбора: идёт / цель достигнута / нет цели */
+/* Состояние сбора: идёт / цель достигнута / закрыт / нет цели */
 .collect-state {
     display: inline-flex;
     align-items: center;
@@ -712,6 +712,11 @@ body[data-page="game"] .site-header .site-nav {
 
 .collect-state--idle {
     color: var(--text-muted);
+}
+
+.collect-state--closed {
+    color: var(--text-muted);
+    border-style: dashed;
 }
 
 /* Списки донатеров */
