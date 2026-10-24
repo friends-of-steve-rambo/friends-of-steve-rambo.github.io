@@ -35,6 +35,9 @@
 
             <p class="server-card__description placeholder" data-role="game-description">[Заполнить: краткое описание сервера]</p>
 
+            <!-- Ссылки на актуальные данные сервера в его репозитории -->
+            <p class="note game-sources" data-role="game-sources" hidden></p>
+
             <!-- Сбор по месяцам -->
             <section class="fund-section" data-role="monthly-block">
                 <div class="section-head">
@@ -122,34 +125,6 @@
             <p class="note fund-empty" data-role="fund-empty" hidden>
                 Сборы ещё не открыты. Как только появится цель на месяц, здесь появятся прогресс и список донатеров.
             </p>
-
-            <!-- Настройки сервера -->
-            <section class="server-section is-collapsed" data-role="settings-block">
-                <h2 class="section-title">
-                    <button class="section-toggle" type="button" id="game-settings-toggle"
-                            data-role="section-toggle" aria-expanded="false"
-                            aria-controls="game-settings-body">
-                        <span data-role="settings-title">Настройки</span>
-                    </button>
-                </h2>
-                <div class="settings-groups section-body" id="game-settings-body" role="region"
-                     aria-labelledby="game-settings-toggle" data-role="settings-list" hidden></div>
-            </section>
-
-            <!-- Моды сервера: общий список с описаниями и пометками -->
-            <section class="server-section is-collapsed" data-role="mods-block" hidden>
-                <h2 class="section-title">
-                    <button class="section-toggle" type="button" id="game-mods-toggle"
-                            data-role="section-toggle" aria-expanded="false"
-                            aria-controls="game-mods-body">
-                        <span data-role="mods-title">Моды</span>
-                    </button>
-                </h2>
-                <div class="section-body" id="game-mods-body" role="region"
-                     aria-labelledby="game-mods-toggle" hidden>
-                    <ul class="mods-list" data-role="mods-list"></ul>
-                </div>
-            </section>
         </article>
 
         <noscript>

@@ -177,232 +177,6 @@
     // Страница игры
     // --------------------------------------------------------
 
-    // Простая строка «параметр — значение» (игры без групп).
-    function createSettingsRow(setting) {
-        var item = document.createElement('li');
-        var label = document.createElement('span');
-        var value = document.createElement('span');
-
-        item.className = 'settings-row';
-        label.className = 'settings-row__label';
-        value.className = 'settings-row__value';
-
-        label.textContent = setting.label;
-        value.textContent = setting.value || '[Заполнить]';
-
-        if (!setting.value) {
-            value.classList.add('placeholder');
-        }
-
-        item.appendChild(label);
-        item.appendChild(value);
-
-        return item;
-    }
-
-    // Компактная настройка: сначала ключ и русская подпись в скобках,
-    // затем переход «дефолт → новое значение».
-    function createSettingsItem(setting) {
-        var item = document.createElement('li');
-        var name = document.createElement('span');
-        var values = document.createElement('span');
-        var value = document.createElement('span');
-
-        item.className = 'settings-item';
-        name.className = 'settings-item__name';
-
-        if (setting.key) {
-            var key = document.createElement('code');
-
-            key.className = 'settings-item__key';
-            key.textContent = setting.key;
-            name.appendChild(key);
-        }
-
-        if (setting.label) {
-            var label = document.createElement('span');
-
-            label.className = 'settings-item__label';
-            label.textContent = setting.key
-                ? '(' + setting.label + ')'
-                : setting.label;
-            name.appendChild(label);
-        }
-
-        item.appendChild(name);
-
-        values.className = 'settings-item__values';
-
-        if (setting.default != null && setting.default !== '') {
-            var defaultValue = document.createElement('span');
-            var arrow = document.createElement('span');
-
-            defaultValue.className = 'settings-item__default';
-            defaultValue.textContent = setting.default;
-
-            arrow.className = 'settings-item__arrow';
-            arrow.setAttribute('aria-hidden', 'true');
-            arrow.textContent = '→';
-
-            values.appendChild(defaultValue);
-            values.appendChild(arrow);
-        }
-
-        value.className = 'settings-item__value';
-        value.textContent = setting.value || '[Заполнить]';
-        values.appendChild(value);
-        item.appendChild(values);
-
-        return item;
-    }
-
-    function createSettingsList(settings, detailed) {
-        var list = document.createElement('ul');
-
-        list.className = detailed
-            ? 'settings-list settings-list--detailed'
-            : 'settings-list';
-
-        settings.forEach(function (setting) {
-            list.appendChild(detailed
-                ? createSettingsItem(setting)
-                : createSettingsRow(setting));
-        });
-
-        return list;
-    }
-
-    // Группа настроек: например, отдельный файл конфига.
-    function createSettingsGroup(group) {
-        var section = document.createElement('section');
-        var head = document.createElement('div');
-        var title = document.createElement('h3');
-        var titleText = document.createElement('span');
-
-        section.className = 'settings-group';
-        head.className = 'settings-group__head';
-        title.className = 'settings-group__title';
-        titleText.textContent = group.title || '';
-
-        if (group.file) {
-            titleText.className = 'settings-group__file';
-        }
-
-        title.appendChild(titleText);
-        head.appendChild(title);
-        section.appendChild(head);
-
-        var items = Array.isArray(group.items) ? group.items : [];
-
-        if (items.length > 0) {
-            section.appendChild(createSettingsList(items, true));
-        }
-
-        return section;
-    }
-
-    function renderSettings(gameData) {
-        var settingsBlock = document.querySelector('[data-role="settings-block"]');
-        var settingsList = document.querySelector('[data-role="settings-list"]');
-        var groups = Array.isArray(gameData.settingsGroups) ? gameData.settingsGroups : [];
-        var flatSettings = Array.isArray(gameData.settings) ? gameData.settings : [];
-        var hasSettings = groups.length > 0 || flatSettings.length > 0;
-
-        if (settingsBlock) {
-            settingsBlock.hidden = !hasSettings;
-        }
-
-        if (!settingsList) {
-            return;
-        }
-
-        settingsList.textContent = '';
-
-        if (!hasSettings) {
-            return;
-        }
-
-        groups.forEach(function (group) {
-            settingsList.appendChild(createSettingsGroup(group));
-        });
-
-        if (flatSettings.length > 0) {
-            settingsList.appendChild(createSettingsList(flatSettings, false));
-        }
-    }
-
-    // --------------------------------------------------------
-    // Моды: общий список, название + описание в скобках + бейдж
-    // --------------------------------------------------------
-
-    function createModItem(mod) {
-        var item = document.createElement('li');
-        var main = document.createElement('span');
-        var name = document.createElement('span');
-
-        item.className = 'mod-item';
-        main.className = 'mod-item__main';
-        name.className = 'mod-item__name';
-        name.textContent = mod.name || '[Без названия]';
-
-        main.appendChild(name);
-
-        if (mod.description) {
-            var description = document.createElement('span');
-
-            description.className = 'mod-item__description';
-            description.textContent = '(' + mod.description + ')';
-            main.appendChild(description);
-        }
-
-        item.appendChild(main);
-
-        if (mod.badge) {
-            var badge = document.createElement('span');
-
-            badge.className = 'mod-badge';
-            badge.textContent = mod.badge;
-
-            if (mod.badgeModifier) {
-                badge.classList.add('mod-badge--' + mod.badgeModifier);
-            }
-
-            item.appendChild(badge);
-        }
-
-        return item;
-    }
-
-    function renderMods(gameData) {
-        var block = document.querySelector('[data-role="mods-block"]');
-        var list = document.querySelector('[data-role="mods-list"]');
-        var mods = Array.isArray(gameData.mods) ? gameData.mods : [];
-
-        if (block) {
-            block.hidden = mods.length === 0;
-        }
-
-        if (!list) {
-            return;
-        }
-
-        list.textContent = '';
-
-        if (mods.length === 0) {
-            return;
-        }
-
-        var title = document.querySelector('[data-role="mods-title"]');
-
-        if (title) {
-            title.textContent = gameData.modsTitle || 'Моды';
-        }
-
-        mods.forEach(function (mod) {
-            list.appendChild(createModItem(mod));
-        });
-    }
-
     // Сворачиваемые секции страницы игры. Заголовок — настоящая кнопка,
     // поэтому работают Enter/Space, фокус и скринридеры (aria-expanded).
     function setupCollapsibleSections() {
@@ -469,8 +243,7 @@
         }
     }
 
-    // Описание игры. Если указан repo, в конец описания добавляется
-    // ссылка на репозиторий с кодом сервера.
+    // Описание игры. Пустая строка показывается заглушкой.
     function renderDescription(el, game) {
         if (!game.description) {
             el.textContent = '[Заполнить: краткое описание сервера]';
@@ -480,21 +253,45 @@
 
         el.textContent = game.description;
         el.classList.remove('placeholder');
+    }
 
-        var repo = game.repo;
+    // Ссылки на репозиторий и актуальные данные сервера (настройки,
+    // моды и т. п.). Сами данные живут в репозитории сервера,
+    // чтобы не дублировать их в data/games.js.
+    function renderSources(gameData) {
+        var el = document.querySelector('[data-role="game-sources"]');
 
-        if (!repo || !repo.url) {
+        if (!el) {
             return;
         }
 
-        el.appendChild(document.createTextNode(' — '));
+        var sources = (Array.isArray(gameData.sources) ? gameData.sources : [])
+            .filter(function (source) {
+                return source && source.url;
+            });
 
-        var link = document.createElement('a');
-        link.href = repo.url;
-        link.textContent = repo.name || 'Код сервера';
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        el.appendChild(link);
+        el.textContent = '';
+        el.hidden = sources.length === 0;
+
+        if (sources.length === 0) {
+            return;
+        }
+
+        el.appendChild(document.createTextNode('Актуальные данные сервера: '));
+
+        sources.forEach(function (source, index) {
+            if (index > 0) {
+                el.appendChild(document.createTextNode(' · '));
+            }
+
+            var link = document.createElement('a');
+
+            link.href = source.url;
+            link.textContent = source.name || 'Источник';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            el.appendChild(link);
+        });
     }
 
     function renderGamePage() {
@@ -551,14 +348,7 @@
             cardTitleEl.textContent = game.serverTitle || game.name;
         }
 
-        var settingsTitleEl = page.querySelector('[data-role="settings-title"]');
-
-        if (settingsTitleEl) {
-            settingsTitleEl.textContent = game.settingsTitle || 'Настройки';
-        }
-
-        renderSettings(game);
-        renderMods(game);
+        renderSources(game);
         renderHosting(game);
 
         renderFundWidget(page, game);

@@ -13,21 +13,11 @@
 //   emoji        — иконка перед названием;
 //   status       — текст и модификатор бейджа (dev, live, planned, closed);
 //   description  — описание; пустая строка означает заглушку;
-//   repo         — необязательная ссылка на репозиторий с кодом сервера:
-//                  { name, url }; добавляется ссылкой в конец description;
 //   hosting      — необязательная справка о хостинге:
 //                  { name, url }; url — ссылка на тариф, name — его название;
-//   settingsTitle — заголовок блока настроек;
-//   settingsGroups — настройки по группам (например, по файлам):
-//                    { title, file, items: [...] };
-//                    file: true — показать title как имя файла;
-//                    элемент: { key, label, value, default };
-//   settings     — простой плоский список: { label, value };
-//                  используется, если settingsGroups не задан;
-//   modsTitle    — заголовок блока модов (по умолчанию «Моды»);
-//   mods         — общий список модов: { name, description, badge, badgeModifier };
-//                  description показывается в скобках, badge — бейдж справа;
-//                  badgeModifier: 'custom' — акцентный бейдж (самописный мод);
+//   sources      — необязательные ссылки на репозиторий и актуальные
+//                  данные сервера (настройки, моды и т. п.): [{ name, url }];
+//                  показываются ссылками под описанием;
 //
 // Сборы по месяцам здесь не хранятся: донаты, цели и копилка
 // лежат в data/donations.js.
@@ -44,56 +34,23 @@ window.GAMES = [
             modifier: 'live'
         },
         description: 'Че ранарод погнали Nah00y: build 42',
-        repo: {
-            name: 'Код сервера на GitHub',
-            url: 'https://github.com/friends-of-steve-rambo/zomboid-docker'
-        },
         hosting: {
             name: 'HVDS-8G',
             url: 'https://hosting-vds.com/vds-russia'
         },
-        settingsTitle: 'Настройки сервера',
-        settingsGroups: [
+        sources: [
             {
-                title: 'servertest.ini',
-                file: true,
-                items: [
-                    // Ослабление античита и проверок
-                    { key: 'AntiCheat*', label: 'Ослабление античита', value: '3', default: '2' },
-                    { key: 'DoLuaChecksum', label: 'не сверять lua файлы', value: 'false', default: 'true' },
-                    //PVP настройки
-                    { key: 'SafetySystem', label: 'пвп без подготовки', value: 'false', default: 'true'},
-                    { key: 'AnnounceDeath', label: 'объявлять сметрти', value: 'true', default: 'false'},
-                    // Убежища игроков
-                    { key: 'PlayerSafehouse', label: 'личные убежища', value: 'true', default: 'false' },
-                    { key: 'SafehouseAllowRespawn', label: 'возрождение в убежище', value: 'true', default: 'false' }
-                ]
+                name: 'Код сервера на GitHub',
+                url: 'https://github.com/friends-of-steve-rambo/zomboid-docker'
             },
             {
-                title: 'servertest_SandboxVars.lua',
-                file: true,
-                items: [
-                    // Зомби: заражение, скорость, пополнение популяции
-                    { key: 'ZombieLore.Transmission', label: 'передача вируса', value: '2 (Saliva Only)', default: '1 (Blood and Saliva)' },
-                    { key: 'ZombieLore.SprinterPercentage', label: 'процент бегунов', value: '1', default: '0' },
-                    { key: 'ZombieRespawn', label: 'респавн зомби', value: '3 (Low)', default: '4 (None)' },
-                    // Мир: отключение ресурсов
-                    { key: 'WaterShut', label: 'отключение воды', value: '3 (0–2 месяца)', default: '2 (0–30 дней)' },
-                    { key: 'ElecShut', label: 'отключение электричества', value: '3 (14 дней–2 месяца)', default: '2 (14–30 дней)' },
-                    // Прокачка персонажа
-                    { key: 'MultiplierConfig.Global', label: 'скорость прокачки навыков', value: '×2', default: '×1.0' },
-                    { key: 'MinutesPerPage', label: 'время чтения страницы книги', value: '0.5 (×4 быстрее)', default: '2' }
-                ]
+                name: 'Настройки сервера',
+                url: 'https://github.com/friends-of-steve-rambo/zomboid-docker/blob/main/config/default.txt'
+            },
+            {
+                name: 'Моды сервера',
+                url: 'https://github.com/friends-of-steve-rambo/zomboid-docker/blob/main/server-mods.yaml'
             }
-        ],
-        modsTitle: 'Моды',
-        mods: [
-            // {
-            //     name: 'Survivor Metrics',
-            //     description: 'считает время онлайна и другую статистику, а по ней подстраивает сложность',
-            //     badge: 'Самописный',
-            //     badgeModifier: 'custom'
-            // }
         ]
     },
 
@@ -106,12 +63,6 @@ window.GAMES = [
             text: 'Не запланировано / Закрыт',
             modifier: 'closed'
         },
-        description: 'Копатель офлайн',
-        settingsTitle: 'О чем значится все это',
-        settings: [
-            { label: 'Версия', value: 'Beta 1.3' },
-            { label: 'Вайп', value: 'Завтра' },
-            { label: 'Статус', value: 'Влажные мечты' }
-        ]
+        description: 'Копатель офлайн'
     }
 ];

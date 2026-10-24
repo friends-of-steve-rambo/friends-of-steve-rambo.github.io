@@ -297,6 +297,11 @@ body[data-page="game"] .site-header .site-nav {
     color: var(--text-secondary);
 }
 
+/* Ссылки на актуальные данные сервера: настройки, моды и т. п. */
+.game-sources {
+    margin: -12px 0 24px;
+}
+
 .server-card__emoji {
     flex: 0 0 auto;
     display: inline-flex;
@@ -915,197 +920,6 @@ body[data-page="game"] .site-header .site-nav {
 .donators-page-status {
     color: var(--text-muted);
     font-size: 0.85rem;
-}
-
-/* ============================================================
-   Настройки сервера, списки, служебные блоки
-   ============================================================ */
-
-/* Общая секция страницы игры: «Настройки сервера», «Моды» и т. п.
-   Одинаковые отступы и разделитель, чтобы заголовки выглядели единообразно. */
-.server-section {
-    margin-top: 28px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border-color);
-}
-
-.settings-list {
-    display: grid;
-    gap: 2px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.settings-row {
-    display: grid;
-    grid-template-columns: 190px minmax(0, 1fr);
-    gap: 2px 18px;
-    padding: 11px 12px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 0;
-}
-
-.settings-row:nth-child(odd) {
-    background: var(--surface-hover);
-}
-
-.settings-row__label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.settings-row__value {
-    color: var(--text-color);
-}
-
-/* Моды: общий список — название, описание в скобках, бейдж справа */
-.mods-list {
-    display: grid;
-    gap: 2px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.mod-item {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 4px 16px;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-}
-
-.mod-item:nth-child(odd) {
-    background: var(--surface-hover);
-}
-
-.mod-item__main {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 8px;
-    min-width: 0;
-}
-
-.mod-item__name {
-    color: var(--text-color);
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.mod-item__description {
-    color: var(--text-muted);
-    font-size: 0.82rem;
-}
-
-.mod-badge {
-    justify-self: end;
-    padding: 1px 9px;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: var(--card-bg-alt);
-    color: var(--text-secondary);
-    font-size: 0.74rem;
-    white-space: nowrap;
-}
-
-.mod-badge--custom {
-    border-color: rgba(255, 70, 85, 0.35);
-    background: var(--accent-soft);
-    color: var(--text-color);
-}
-
-/* Настройки: группы по файлам конфига */
-.settings-group + .settings-group {
-    margin-top: 22px;
-}
-
-.settings-group__head {
-    margin-bottom: 8px;
-}
-
-.settings-group__title {
-    margin: 0;
-    font-size: 0.95rem;
-}
-
-.settings-group__file {
-    padding: 2px 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background: var(--card-bg-alt);
-    color: var(--text-color);
-    font-family: Consolas, 'Courier New', monospace;
-    font-size: 0.85rem;
-}
-
-/* Строка настройки: ключ (подпись) и «дефолт → новое значение» */
-.settings-item {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 2px 16px;
-    padding: 8px 12px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 0;
-}
-
-.settings-item:nth-child(odd) {
-    background: var(--surface-hover);
-}
-
-.settings-item__name {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 8px;
-    min-width: 0;
-}
-
-.settings-item__key {
-    color: var(--text-color);
-    font-family: Consolas, 'Courier New', monospace;
-    font-size: 0.86rem;
-    font-weight: 600;
-    overflow-wrap: anywhere;
-}
-
-.settings-item__label {
-    color: var(--text-muted);
-    font-size: 0.82rem;
-}
-
-.settings-item__values {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    justify-self: end;
-    gap: 6px;
-}
-
-.settings-item__default {
-    color: var(--text-muted);
-    font-family: Consolas, 'Courier New', monospace;
-    font-size: 0.78rem;
-}
-
-.settings-item__arrow {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-}
-
-.settings-item__value {
-    padding: 1px 9px;
-    border: 1px solid rgba(255, 70, 85, 0.35);
-    border-radius: 999px;
-    background: var(--accent-soft);
-    color: var(--text-color);
-    font-family: Consolas, 'Courier New', monospace;
-    font-size: 0.78rem;
-    white-space: nowrap;
 }
 
 ul {
@@ -1787,30 +1601,6 @@ select.vote-field__control option:checked,
 
     .vote-results__grid {
         grid-template-columns: 1fr;
-    }
-
-    .settings-row {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-
-    .settings-item {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 3px;
-    }
-
-    .settings-item__values {
-        justify-self: start;
-        justify-content: flex-start;
-    }
-
-    .mod-item {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 6px;
-    }
-
-    .mod-badge {
-        justify-self: start;
     }
 
     .month-panel {
