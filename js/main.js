@@ -277,8 +277,6 @@
             return;
         }
 
-        el.appendChild(document.createTextNode('Актуальные данные сервера: '));
-
         sources.forEach(function (source, index) {
             if (index > 0) {
                 el.appendChild(document.createTextNode(' · '));

@@ -40,16 +40,16 @@ window.GAMES = [
         },
         sources: [
             {
-                name: 'Код сервера на GitHub',
+                name: 'Конфигурация сервера на GitHub',
                 url: 'https://github.com/friends-of-steve-rambo/zomboid-docker'
             },
             {
                 name: 'Настройки сервера',
-                url: 'https://github.com/friends-of-steve-rambo/zomboid-docker/blob/main/config/default.txt'
+                url: 'https://github.com/friends-of-steve-rambo/zomboid-docker/blob/main/config/server-default.pztemplate.json'
             },
             {
                 name: 'Моды сервера',
-                url: 'https://github.com/friends-of-steve-rambo/zomboid-docker/blob/main/server-mods.yaml'
+                url: 'https://steamcommunity.com/sharedfiles/filedetails/?id=3826832497'
             }
         ]
     },
